@@ -1,0 +1,40 @@
+{
+    "name": "cutadapt",
+    "version": "3.4.0",
+    "description": "CutAdapt tool",
+    "main": "main.nf",
+    "deprecated": false,
+    "keywords": [
+        "qc metrics",
+        "adapters",
+        "adapter contamination",
+        "trimming",
+        "quality trimming",
+        "adapter trimming"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/icgc-argo-qc-wg/argo-qc-tools.git"
+    },
+    "container": {
+        "registries": [
+            {
+                "registry": "hub.docker.com",
+                "type": "docker",
+                "org": "icgc-argo-qc-wg",
+                "default": true
+            }
+        ]
+    },
+    "dependencies": [],
+    "devDependencies": [],
+    "contributors": [
+        {
+            "name": "Morgan Taschuk",
+            "email": "morgan.taschuk@oicr.on.ca"
+        }
+    ],
+    "license": "MIT",
+    "bugReport": "https://github.com/icgc-argo-qc-wg/argo-qc-tools/issues",
+    "homepage": "https://github.com/icgc-argo-qc-wg/argo-qc-tools#readme"
+}
