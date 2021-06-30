@@ -19,7 +19,7 @@
     "container": {
         "registries": [
             {
-                "registry": "hub.docker.com",
+                "registry": "ghcr.io",
                 "type": "docker",
                 "org": "icgc-argo-qc-wg",
                 "default": true

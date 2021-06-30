@@ -37,9 +37,9 @@ nextflow.enable.dsl = 2
 version = '3.4.0'  // package version
 
 container = [
-    'hub.docker.com': 'hub.docker.com/icgc-argo-qc-wg/argo-qc-tools.cutadapt'
+    'ghcr.io': 'ghcr.io/icgc-argo-qc-wg/argo-qc-tools.cutadapt'
 ]
-default_container_registry = 'hub.docker.com'
+default_container_registry = 'ghcr.io'
 /********************************************************************/
 
 // universal params
