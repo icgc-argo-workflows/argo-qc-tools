@@ -48,11 +48,12 @@ params.container_version = ""
 params.container = ""
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
+params.aligned_seq = ""
+params.ref_genome_gz = ""  // reference genome: *.fa.gz, index file: *.fa.gz.fai
 params.expected_output = ""
 
 include { samtoolsStats } from '../main'
-
+include { getSecondaryFiles } from './wfpr_modules/github.com/icgc-argo/data-processing-utility-tools/helper-functions@1.0.1/main.nf'
 
 process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
@@ -66,34 +67,40 @@ process file_smart_diff {
 
   script:
     """
-    # Note: this is only for demo purpose, please write your own 'diff' according to your own needs.
-    # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
-    # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
+    mkdir output expected
 
-    cat ${output_file} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
+    tar xzf ${output_file} -C output
+    tar xzf ${expected_file} -C expected
 
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
+    # we ignore diff from the lines with 'The command line' since they contain dynamic file path
+    EFFECTIVE_DIFF=`diff output/ expected/ | egrep '<|>' | grep -v ' # The command line was:' || true`
 
-    diff normalized_output normalized_expected \
-      && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
+    if [ -z "\$EFFECTIVE_DIFF" ]
+    then
+        echo "Test PASSED" && exit 0
+    else
+        >&2 echo "Test FAILED, output file mismatch: \$EFFECTIVE_DIFF" && exit 1
+    fi
     """
 }
 
 
 workflow checker {
   take:
-    input_file
+    aligned_seq
+    ref_genome_gz
+    ref_genome_gz_idx
     expected_output
 
   main:
     samtoolsStats(
-      input_file
+      aligned_seq,
+      ref_genome_gz,
+      ref_genome_gz_idx
     )
 
     file_smart_diff(
-      samtoolsStats.out.output_file,
+      samtoolsStats.out.qc_tar,
       expected_output
     )
 }
@@ -101,7 +108,11 @@ workflow checker {
 
 workflow {
   checker(
-    file(params.input_file),
+    file(params.aligned_seq),
+    file(params.ref_genome_gz),
+    Channel.fromPath(
+      getSecondaryFiles(params.ref_genome_gz, ['fai']), checkIfExists: true
+    ).collect(),
     file(params.expected_output)
   )
 }

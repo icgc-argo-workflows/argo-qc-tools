@@ -47,11 +47,12 @@ params.cpus = 1
 params.mem = 1  // GB
 params.publish_dir = ""  // set to empty string will disable publishDir
 
-
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.output_pattern = "*"  // output file name pattern
+params.aligned_seq = ""
+params.ref_genome_gz = ""  // reference genome: *.fa.gz, index file: *.fa.gz.fai
 
+
+include { getSecondaryFiles } from './wfpr_modules/github.com/icgc-argo/data-processing-utility-tools/helper-functions@1.0.1/main.nf'
 
 process samtoolsStats {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
@@ -60,22 +61,19 @@ process samtoolsStats {
   cpus params.cpus
   memory "${params.mem} GB"
 
-  input:  // input, make update as needed
-    path input_file
+  input:
+    path aligned_seq
+    path ref_genome_gz
+    path ref_genome_gz_idx
 
-  output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output_file
+  output:
+    path "${aligned_seq}.samtools_stats.qc.tgz", emit: qc_tar
 
   script:
-    // add and initialize variables here as needed
-
     """
-    mkdir -p output_dir
-
-    main.py \
-      -i ${input_file} \
-      -o output_dir
-
+    main.py -s ${aligned_seq} \
+            -r ${ref_genome_gz} \
+            -t ${params.cpus}
     """
 }
 
@@ -84,6 +82,10 @@ process samtoolsStats {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   samtoolsStats(
-    file(params.input_file)
+    file(params.aligned_seq),
+    file(params.ref_genome_gz),
+    Channel.fromPath(
+      getSecondaryFiles(params.ref_genome_gz, ['fai']), checkIfExists: true
+    ).collect()
   )
 }
