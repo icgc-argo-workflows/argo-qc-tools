@@ -85,7 +85,7 @@ process file_smart_diff {
 
       if [ ! -z "\$EFFECTIVE_DIFF" ]
       then
-        echo "Test FAILED, output file \$f mismatch: \$EFFECTIVE_DIFF" && exit 1
+        echo -e "Test FAILED, output file \$f mismatch:\n\$EFFECTIVE_DIFF" && exit 1
       fi
     done
 

@@ -54,12 +54,12 @@ def run_cmd(cmd):
 
 
 def get_tool_version():
-    get_tool_version_cmd = 'samtools --version | grep samtools'
+    get_tool_version_cmd = "samtools --version | grep '^samtools'"
     stdout, stderr, returncode = run_cmd(get_tool_version_cmd)
     if returncode:
         sys.exit(f"Error: unable to get version info for samtools.\nStdout: {stdout}\nStderr: {stderr}\n")
 
-    return f"samtools:stats@{stdout.strip().split(' ')[-1]}"
+    return stdout.strip().split(' ')[-1]
 
 
 def prep_qc_metrics(agg_bamstat, tool_ver):
