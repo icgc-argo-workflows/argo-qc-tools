@@ -149,7 +149,7 @@ def main(aligned_seq, reference, threads=1):
     qc_metrics_file = prep_qc_metrics(agg_bamstat, tool_ver)
 
     lane_bamstat = []
-    for f in glob('*.bamstat'):
+    for f in sorted(glob('*.bamstat')):
         if f != agg_bamstat:
             lane_bamstat.append(f)
 
