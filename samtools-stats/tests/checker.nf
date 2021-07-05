@@ -72,15 +72,24 @@ process file_smart_diff {
     tar xzf ${output_file} -C output
     tar xzf ${expected_file} -C expected
 
-    # we ignore diff from the lines with 'The command line' since they contain dynamic file path
-    EFFECTIVE_DIFF=`diff output/ expected/ | egrep '<|>' | grep -v ' # The command line was:' || true`
+    cd output
+    for f in *; do
+      if [ ! -f "../expected/\$f" ]
+      then
+        echo "Test FAILED, found unexpected file: \$f in the output tarball" && exit 1
+      fi
 
-    if [ -z "\$EFFECTIVE_DIFF" ]
-    then
-        echo "Test PASSED" && exit 0
-    else
-        >&2 echo "Test FAILED, output file mismatch: \$EFFECTIVE_DIFF" && exit 1
-    fi
+      echo diff \$f ../expected/\$f
+      # we ignore diff from the lines with 'The command line' since they contain dynamic file path
+      EFFECTIVE_DIFF=`diff \$f ../expected/\$f | egrep '<|>' | grep -v ' # The command line was:' || true`
+
+      if [ ! -z "\$EFFECTIVE_DIFF" ]
+      then
+        echo "Test FAILED, output file \$f mismatch: \$EFFECTIVE_DIFF" && exit 1
+      fi
+    done
+
+    echo "All files match, test PASSED" && exit 0
     """
 }
 
