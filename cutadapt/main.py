@@ -67,11 +67,11 @@ def main():
     if not os.path.isdir(args.output_dir):
         sys.exit('Error: specified output dir %s does not exist or is not accessible!' % args.output_dir)
 
-    adapter1 = "AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"
-    adapter2 = "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"
-
     #subprocess.run(f"cp {args.input_file} {args.output_dir}/", shell=True, check=True)
-    subprocess.run(f"cutadapt -q {args.min_trim_qual} -m {args.min_trim_len} -a {args.adapter_R1} -A {args.adapter_R2} -o {args.output_dir}/out.fastq.gz -p {args.output_dir}/out2.fastq.gz {args.input_R1} {args.input_R2}", shell=True, check=True)
+    output=subprocess.run(f"cutadapt -q {args.min_trim_qual} -m {args.min_trim_len} -a {args.adapter_R1} -A {args.adapter_R2} -o {args.output_dir}/out.fastq.gz -p {args.output_dir}/out2.fastq.gz {args.input_R1} {args.input_R2}", shell=True, check=True, capture_output=True)
+
+    with open(f"{args.output_dir}/cutadapt.log", "w") as log:
+        log.write(output)
 
 
 if __name__ == "__main__":

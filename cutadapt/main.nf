@@ -50,7 +50,7 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
 params.input_file = ""
-params.output_pattern = "*.html"  // output file name pattern
+params.output_pattern = "*.fastq.gz"  // output file name pattern
 
 
 process cutadapt {
@@ -61,10 +61,13 @@ process cutadapt {
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    path input_file
+    path input_R1
+    path input_R2
 
   output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output_file
+    path "output_dir/out.fastq.gz", emit: output_R1
+    path "output_dir/out2.fastq.gz", emit: output_R2
+    path "output_dir/cutadapt.log", emit: output_log
 
   script:
     // add and initialize variables here as needed
@@ -73,17 +76,17 @@ process cutadapt {
     mkdir -p output_dir
 
     main.py \
-      -i ${input_file} \
+      -1 ${input_R1} \
+      -2 ${input_R2} \
       -o output_dir
-
     """
 }
 
 
 // this provides an entry point for this main script, so it can be run directly without clone the repo
-// using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
+// using this command: nextflow run icgc-argo-qc-wg/argo-qc-tools/cutadapt/main.nf -r cutadapt.v3.4.0 --params-file
 workflow {
   cutadapt(
-    file(params.input_file)
+    file(params.input_R1), file(params.input_R2)
   )
 }

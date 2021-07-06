@@ -58,50 +58,64 @@ process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
 
   input:
-    path output_file
-    path expected_file
+    path output_R1
+    path output_R2
+    path expected_R1
+    path expected_R2
+    path output_log
+    path expected_log
 
   output:
     stdout()
 
   script:
     """
-    # Note: this is only for demo purpose, please write your own 'diff' according to your own needs.
-    # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
-    # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
 
-    cat ${output_file} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
+    zcat ${output_R1} ${output_R2}\
+      | md5sum > normalized_output
 
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
+    ([[ '${expected_R1}' == *.gz ]] && zcat ${expected_R1} ${expected_R2} || md5sum > normalized_expected
 
     diff normalized_output normalized_expected \
-      && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
+      && ( echo "Test PASSED" && exit 0 ) || ( echo "Read Test FAILED, output files R1 ${expected_R1} and R2 ${expected_R2} don't match expected." && exit 1 )
+
+    grep -vE "^Command line parameters|^Finished in" ${output_log} | diff ${expected_log} - \
+      && ( echo "Test PASSED && exit 0" ) || ( echo "Log Test FAILED, output file ${output_log} didn't match expected" && exit 1 )
+
     """
 }
 
 
 workflow checker {
   take:
-    input_file
-    expected_output
+    input_R1
+    input_R2
+    expected_R1
+    expected_R2
+    expected_log
 
   main:
     cutadapt(
-      input_file
+      file(params.input_R1), file(params.input_R2)
     )
 
     file_smart_diff(
-      cutadapt.out.output_file,
-      expected_output
+      cutadapt.out.output_R1
+      cutadapt.out.output_R2
+      expected_R1
+      expected_R2
+      cutadapt.out.output_log
+      expected_log
     )
 }
 
 
 workflow {
   checker(
-    file(params.input_file),
-    file(params.expected_output)
+    file(params.input_R1),
+    file(params.input_R2),
+    file(params.expected_R1),
+    file(params.expected_R2),
+    file(params.expected_log),
   )
 }
