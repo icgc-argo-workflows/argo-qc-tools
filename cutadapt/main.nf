@@ -64,7 +64,7 @@ process cutadapt {
     path input_R1
     path input_R2
 
-  output:  // output, make update as needed
+  output:
     path "output_dir/out.fastq.gz", emit: output_R1
     path "output_dir/out2.fastq.gz", emit: output_R2
     path "output_dir/cutadapt.log", emit: output_log

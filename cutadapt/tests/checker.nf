@@ -100,11 +100,11 @@ workflow checker {
     )
 
     file_smart_diff(
-      cutadapt.out.output_R1
-      cutadapt.out.output_R2
-      expected_R1
-      expected_R2
-      cutadapt.out.output_log
+      cutadapt.out.output_R1,
+      cutadapt.out.output_R2,
+      expected_R1,
+      expected_R2,
+      cutadapt.out.output_log,
       expected_log
     )
 }
@@ -116,6 +116,6 @@ workflow {
     file(params.input_R2),
     file(params.expected_R1),
     file(params.expected_R2),
-    file(params.expected_log),
+    file(params.expected_log)
   )
 }
