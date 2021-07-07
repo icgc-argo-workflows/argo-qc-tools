@@ -54,24 +54,23 @@ def main():
                         default='AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT')
     parser.add_argument('-m', '--minimum-length', dest="min_trim_len", type=str,
                         help='Discard reads shorter than LEN.', default='1')
-    parser.add_argument('-q', '--quality-cutoff', dest="min_trum_qual", type=str,
+    parser.add_argument('-q', '--quality-cutoff', dest="min_trim_qual", type=str,
                         help='Trim low-quality bases from 5\' and/or 3\' ends of each read before adapter removal. Applied to both reads if data is paired. If one value is given, only the 3\' end is trimmed. If two comma-separated cutoffs are given, the 5\' end is trimmed with the first cutoff, the 3\' end with the second.',
                         default="0")
     parser.add_argument('-x', "--extra-options", dest="extra_options", type=str,
                         help="any extra parameters to pass to cutadapt", default='')
     args = parser.parse_args()
 
-    if not os.path.isfile(args.input_file):
-        sys.exit('Error: specified input file %s does not exist or is not accessible!' % args.input_file)
-
+    if not os.path.isfile(args.input_R1):
+        sys.exit('Error: specified input file %s does not exist or is not accessible!' % args.input_R1)
+    if not os.path.isfile(args.input_R2):
+        sys.exit('Error: specified input file %s does not exist or is not accessible!' % args.input_R2)
     if not os.path.isdir(args.output_dir):
         sys.exit('Error: specified output dir %s does not exist or is not accessible!' % args.output_dir)
 
     #subprocess.run(f"cp {args.input_file} {args.output_dir}/", shell=True, check=True)
-    output=subprocess.run(f"cutadapt -q {args.min_trim_qual} -m {args.min_trim_len} -a {args.adapter_R1} -A {args.adapter_R2} -o {args.output_dir}/out.fastq.gz -p {args.output_dir}/out2.fastq.gz {args.input_R1} {args.input_R2}", shell=True, check=True, capture_output=True)
-
     with open(f"{args.output_dir}/cutadapt.log", "w") as log:
-        log.write(output)
+        ret_val=subprocess.run(f"cutadapt -q {args.min_trim_qual} -m {args.min_trim_len} -a {args.adapter_R1} -A {args.adapter_R2} -o {args.output_dir}/out.fastq.gz -p {args.output_dir}/out2.fastq.gz {args.input_R1} {args.input_R2}", shell=True, check=True, stdout=log)
 
 
 if __name__ == "__main__":
