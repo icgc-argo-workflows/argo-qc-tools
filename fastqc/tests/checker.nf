@@ -48,7 +48,7 @@ params.container_version = ""
 params.container = ""
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
+params.seq = ""
 params.expected_output = ""
 
 include { fastqc } from '../main'
@@ -66,34 +66,42 @@ process file_smart_diff {
 
   script:
     """
-    # Note: this is only for demo purpose, please write your own 'diff' according to your own needs.
-    # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
-    # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
+    mkdir output expected
 
-    cat ${output_file} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
-
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
-
-    diff normalized_output normalized_expected \
-      && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
+    tar xzf ${output_file} -C output
+    tar xzf ${expected_file} -C expected
+    
+    cd output
+    # only compare txt file
+    for f in `find . -type f -name "*.txt"`; do 
+      if [ ! -f "../expected/\$f" ]
+      then
+        echo "Test FAILED, found unexpected file: \$f in the output tarball" && exit 1
+      fi
+      echo diff \$f ../expected/\$f
+      EFFECTIVE_DIFF=`diff \$f ../expected/\$f | egrep '<|>' || true`
+      if [ ! -z "\$EFFECTIVE_DIFF" ]
+      then
+        echo -e "Test FAILED, output file \$f mismatch:\n\$EFFECTIVE_DIFF" && exit 1
+      fi
+    done
+    echo "All files match, test PASSED" && exit 0
     """
 }
 
 
 workflow checker {
   take:
-    input_file
+    seq
     expected_output
 
   main:
     fastqc(
-      input_file
+      seq
     )
 
     file_smart_diff(
-      fastqc.out.output_file,
+      fastqc.out.qc_tar,
       expected_output
     )
 }
@@ -101,7 +109,7 @@ workflow checker {
 
 workflow {
   checker(
-    file(params.input_file),
+    file(params.seq),
     file(params.expected_output)
   )
 }

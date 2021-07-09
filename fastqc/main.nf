@@ -49,8 +49,7 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.output_pattern = "*.html"  // output file name pattern
+params.seq = ""
 
 
 process fastqc {
@@ -61,20 +60,18 @@ process fastqc {
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    path input_file
+    path seq
 
   output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output_file
+    path "${seq}.fastqc.tgz", emit: qc_tar
 
   script:
     // add and initialize variables here as needed
 
     """
-    mkdir -p output_dir
-
     main.py \
-      -i ${input_file} \
-      -o output_dir
+      -s ${seq} \
+      -t ${params.cpus}
 
     """
 }
@@ -84,6 +81,6 @@ process fastqc {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   fastqc(
-    file(params.input_file)
+    file(params.seq)
   )
 }
