@@ -142,7 +142,7 @@ def main():
         sys.exit('Error: specified seq file %s does not exist or is not accessible!' % args.seq)
 
 
-    # get samtools version info
+    # get tool version info
     tool_ver = get_tool_version('fastqc')
 
     output_dir = 'output'
