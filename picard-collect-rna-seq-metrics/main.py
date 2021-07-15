@@ -58,7 +58,7 @@ def get_tool_version(toolcmd):
     if returncode:
         sys.exit(f"Error: unable to get version info for {toolcmd}.\nStdout: {stdout}\nStderr: {stderr}\n")
 
-    return stdout.strip().split(',')[-1]
+    return stdout.strip().split(':')[-1]
 
 def prep_qc_metrics(output_dir, tool_ver):
     qc_metrics = {
