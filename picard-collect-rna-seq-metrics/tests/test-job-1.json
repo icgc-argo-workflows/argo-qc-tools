@@ -1,6 +1,7 @@
 {
-    "input_file": "input/test_rg_3.bam",
-    "expected_output": "expected/expected.test_rg_3.bam",
+    "aligned_seq": "input/sample_01_L1_Aligned.out.bam",
+    "ref_flat": "input/refFlat.hg38.txt.gz",
+    "expected_output": "expected/expected.sample_01_L1_Aligned.out.bam.collectrnaseqmetrics.tgz",
     "publish_dir": "outdir",
     "cpus": 1,
     "mem": 0.5

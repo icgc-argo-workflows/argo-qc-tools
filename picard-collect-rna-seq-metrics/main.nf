@@ -49,8 +49,11 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.output_pattern = "*.html"  // output file name pattern
+params.aligned_seq = "NO_FILE1"
+params.ref_flat = "NO_FILE2"
+params.strand = ""
+params.ignore_seq = "NO_FILE3"
+params.ribosomal_interval_list = "NO_FILE4"
 
 
 process picardCollectRnaSeqMetrics {
@@ -61,21 +64,29 @@ process picardCollectRnaSeqMetrics {
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    path input_file
+    path aligned_seq
+    path ref_flat
+    path ignore_seq
+    path ribosomal_interval_list
+    val strand
 
   output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output_file
+    path "${aligned_seq}.collectrnaseqmetrics.tgz", emit: qc_tar
 
   script:
     // add and initialize variables here as needed
+    arg_strand = strand == '' ? "" : " -s ${strand}"
+    arg_ignore_seq = ignore_seq.name.startsWith('NO_FILE') ? "" : "-x ${ignore_seq}"
+    arg_ribosomal_interval_list = ribosomal_interval_list.name.startsWith('NO_FILE') ? "" : "-b ${ribosomal_interval_list}"
 
     """
-    mkdir -p output_dir
-
     main.py \
-      -i ${input_file} \
-      -o output_dir
-
+      -m ${(int) (params.mem * 1000)} \
+      -i ${aligned_seq} \
+      -r ${ref_flat} \
+      ${arg_strand} \
+      ${arg_ignore_seq} \
+      ${arg_ribosomal_interval_list}
     """
 }
 
@@ -84,6 +95,10 @@ process picardCollectRnaSeqMetrics {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   picardCollectRnaSeqMetrics(
-    file(params.input_file)
+    file(params.aligned_seq),
+    file(params.ref_flat),
+    file(params.ignore_seq),
+    file(params.ribosomal_interval_list),
+    params.strand
   )
 }

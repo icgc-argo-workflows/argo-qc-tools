@@ -48,7 +48,11 @@ params.container_version = ""
 params.container = ""
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
+params.aligned_seq = "NO_FILE1"
+params.ref_flat = "NO_FILE2"
+params.strand = ""
+params.ignore_seq = "NO_FILE3"
+params.ribosomal_interval_list = "NO_FILE4"
 params.expected_output = ""
 
 include { picardCollectRnaSeqMetrics } from '../main'
@@ -66,34 +70,50 @@ process file_smart_diff {
 
   script:
     """
-    # Note: this is only for demo purpose, please write your own 'diff' according to your own needs.
-    # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
-    # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
-
-    cat ${output_file} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
-
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
-
-    diff normalized_output normalized_expected \
-      && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
+    mkdir output expected
+    tar xzf ${output_file} -C output
+    tar xzf ${expected_file} -C expected
+    
+    cd output
+    # only compare txt file
+    for f in `find . -type f -name "*.txt"`; do 
+      if [ ! -f "../expected/\$f" ]
+      then
+        echo "Test FAILED, found unexpected file: \$f in the output tarball" && exit 1
+      fi
+      echo diff \$f ../expected/\$f
+      # ignore diff from the lines with dynamic timestamp
+      EFFECTIVE_DIFF=`diff \$f ../expected/\$f | egrep '<|>' | grep -v '# Started on' || true`
+      if [ ! -z "\$EFFECTIVE_DIFF" ]
+      then
+        echo -e "Test FAILED, output file \$f mismatch:\n\$EFFECTIVE_DIFF" && exit 1
+      fi
+    done
+    echo "All files match, test PASSED" && exit 0
     """
 }
 
 
 workflow checker {
   take:
-    input_file
+    aligned_seq
+    ref_flat
+    ignore_seq
+    ribosomal_interval_list
+    strand
     expected_output
 
   main:
     picardCollectRnaSeqMetrics(
-      input_file
+      aligned_seq,
+      ref_flat,
+      ignore_seq,
+      ribosomal_interval_list,
+      strand
     )
 
     file_smart_diff(
-      picardCollectRnaSeqMetrics.out.output_file,
+      picardCollectRnaSeqMetrics.out.qc_tar,
       expected_output
     )
 }
@@ -101,7 +121,11 @@ workflow checker {
 
 workflow {
   checker(
-    file(params.input_file),
+    file(params.aligned_seq),
+    file(params.ref_flat),
+    file(params.ignore_seq),
+    file(params.ribosomal_interval_list),
+    params.strand,
     file(params.expected_output)
   )
 }
