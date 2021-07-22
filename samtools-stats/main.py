@@ -103,7 +103,8 @@ def prep_qc_metrics(agg_bamstat, tool_ver):
         'insert size standard deviation': 'insert_size_standard_deviation',
         'inward oriented pairs': 'inward_oriented_pairs',
         'outward oriented pairs': 'outward_oriented_pairs',
-        'pairs with other orientation': 'pairs_with_other_orientation'
+        'pairs with other orientation': 'pairs_with_other_orientation',
+        'percentage of properly paired reads (%)': 'percentage_of_properly_paired_reads'
     }
 
     with open(agg_bamstat, 'r') as f:
