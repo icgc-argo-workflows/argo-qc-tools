@@ -1,6 +1,6 @@
 {
     "name": "samtools-stats",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "Samtools stats",
     "main": "main.nf",
     "deprecated": false,
