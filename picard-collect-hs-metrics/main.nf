@@ -44,13 +44,15 @@ params.container_version = ""
 params.container = ""
 
 params.cpus = 1
-params.mem = 1  // GB
-params.publish_dir = ""  // set to empty string will disable publishDir
+params.mem = 4  // GB
+params.publish_dir = "picard-collect-hs-metrics_outdir"  // set to empty string will disable publishDir
 
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.output_pattern = "*.html"  // output file name pattern
+params.bam = ""
+params.target_intervals= ""
+params.bait_intervals= ""
+params.output_pattern = "*.hs_metrics.txt"  // output file name pattern
 
 
 process picardCollectHsMetrics {
@@ -60,23 +62,19 @@ process picardCollectHsMetrics {
   cpus params.cpus
   memory "${params.mem} GB"
 
-  input:  // input, make update as needed
-    path input_file
+  input:
+    path bam
+    path target_intervals
+    path bait_intervals
 
-  output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output_file
+  output:
+    path "${params.output_pattern}", emit: output_file
 
-  script:
-    // add and initialize variables here as needed
+  shell:
 
-    """
-    mkdir -p output_dir
-
-    main.py \
-      -i ${input_file} \
-      -o output_dir
-
-    """
+    '''
+    java -jar /picard.jar CollectHsMetrics --INPUT !{bam} --TARGET_INTERVALS !{target_intervals} --BAIT_INTERVALS !{bait_intervals} --OUTPUT \$(basename !{bam} .bam).hs_metrics.txt
+    '''
 }
 
 
@@ -84,6 +82,8 @@ process picardCollectHsMetrics {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   picardCollectHsMetrics(
-    file(params.input_file)
+    file(params.bam),
+    file(params.target_intervals),
+    file(params.bait_intervals)
   )
 }

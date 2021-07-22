@@ -48,7 +48,9 @@ params.container_version = ""
 params.container = ""
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
+params.bam = ""
+params.target_intervals= ""
+params.bait_intervals= ""
 params.expected_output = ""
 
 include { picardCollectHsMetrics } from '../main'
@@ -66,15 +68,11 @@ process file_smart_diff {
 
   script:
     """
-    # Note: this is only for demo purpose, please write your own 'diff' according to your own needs.
-    # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
-    # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
+    # we need to remove the date field from the files before comparison
 
-    cat ${output_file} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
+    grep -v 'Started on' ${output_file} > normalized_output
 
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
+    grep -v 'Started on' ${expected_file} > normalized_expected
 
     diff normalized_output normalized_expected \
       && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
@@ -84,12 +82,16 @@ process file_smart_diff {
 
 workflow checker {
   take:
-    input_file
+    bam
+    target_intervals
+    bait_intervals
     expected_output
 
   main:
     picardCollectHsMetrics(
-      input_file
+      bam,
+      target_intervals,
+      bait_intervals
     )
 
     file_smart_diff(
@@ -101,7 +103,9 @@ workflow checker {
 
 workflow {
   checker(
-    file(params.input_file),
+    file(params.bam),
+    file(params.target_intervals),
+    file(params.bait_intervals),
     file(params.expected_output)
   )
 }
