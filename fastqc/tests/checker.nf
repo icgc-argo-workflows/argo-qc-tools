@@ -74,7 +74,7 @@ process file_smart_diff {
     unzip expected/*.zip -d expected
     
     cd output
-    # only compare txt file
+    # compare all types of files
     for f in `find . -type f`; do 
       if [ ! -f "../expected/\$f" ]
       then
