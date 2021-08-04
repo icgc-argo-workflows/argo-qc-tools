@@ -69,11 +69,13 @@ process file_smart_diff {
     mkdir output expected
 
     tar xzf ${output_file} -C output
+    unzip output/*.zip -d output
     tar xzf ${expected_file} -C expected
+    unzip expected/*.zip -d expected
     
     cd output
     # only compare txt file
-    for f in `find . -type f -name "*.txt"`; do 
+    for f in `find . -type f`; do 
       if [ ! -f "../expected/\$f" ]
       then
         echo "Test FAILED, found unexpected file: \$f in the output tarball" && exit 1
