@@ -44,46 +44,40 @@ params.container_version = ""
 params.container = ""
 
 params.cpus = 1
-params.mem = 1  // GB
+params.mem = 4  // GB
 params.publish_dir = ""  // set to empty string will disable publishDir
 
+// tool specific params go here, add / change as needed
+params.input_data = "tests/input/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.bam"
+params.ref_genome = "tests/input/hg38.bed"
 
-// tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.output_pattern = "*.html"  // output file name pattern
 
-
-process bedtoolsHist {
+process coverageHistogram {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
   publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
 
   cpus params.cpus
   memory "${params.mem} GB"
 
-  input:  // input, make update as needed
-    path input_file
+  input:
+    path input_data
+    path ref_genome
 
-  output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output_file
+  output:
+    path "${input_data}.coverage_hist.tsv", emit: qc_tsv
 
   script:
-    // add and initialize variables here as needed
-
     """
-    mkdir -p output_dir
-
-    main.py \
-      -i ${input_file} \
-      -o output_dir
-
+    main.py -d ${input_data} \
+            -r ${ref_genome} 
     """
 }
-
 
 // this provides an entry point for this main script, so it can be run directly without clone the repo
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
-  bedtoolsHist(
-    file(params.input_file)
-  )
+  coverageHistogram(
+    file(params.input_data),
+    file(params.ref_genome)
+  ).collect()
 }

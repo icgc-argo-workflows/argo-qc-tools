@@ -22,7 +22,7 @@
   SOFTWARE.
 
   Authors:
-    Peter Ruzanov
+    pruzanov
 */
 
 /*
@@ -47,11 +47,12 @@ params.container_registry = ""
 params.container_version = ""
 params.container = ""
 
-// tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.expected_output = ""
+// tool specific params go here, add / change as needed
+params.input_file = "input/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.bam"
+params.ref_genome = "input/hg38.bed"
+params.expected_output = "expected/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.precalculated_coverage_hist.tsv"
 
-include { bedtoolsHist } from '../main'
+include { coverageHistogram } from '../main'
 
 
 process file_smart_diff {
@@ -69,14 +70,7 @@ process file_smart_diff {
     # Note: this is only for demo purpose, please write your own 'diff' according to your own needs.
     # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
     # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
-
-    cat ${output_file} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
-
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
-
-    diff normalized_output normalized_expected \
+    diff ${output_file} ${expected_file} \
       && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
 }
@@ -85,15 +79,17 @@ process file_smart_diff {
 workflow checker {
   take:
     input_file
+    ref_genome
     expected_output
 
   main:
-    bedtoolsHist(
-      input_file
+    coverageHistogram(
+      input_file,
+      ref_genome
     )
 
     file_smart_diff(
-      bedtoolsHist.out.output_file,
+      coverageHistogram.out.qc_tsv,
       expected_output
     )
 }
@@ -102,6 +98,7 @@ workflow checker {
 workflow {
   checker(
     file(params.input_file),
+    file(params.ref_genome),
     file(params.expected_output)
   )
 }

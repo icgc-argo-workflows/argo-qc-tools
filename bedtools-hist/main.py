@@ -32,29 +32,84 @@ import argparse
 import subprocess
 
 
-def main():
+def run_cmd(cmd):
+    proc = subprocess.Popen(
+        cmd,
+        shell=True,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+    stdout, stderr = proc.communicate()
+
+    return (
+        stdout.decode("utf-8").strip(),
+        stderr.decode("utf-8").strip(),
+        proc.returncode
+    )
+
+
+def get_tool_version():
     """
-    Python implementation of tool: bedtools-hist
+    Get version of the bedtools
+   """
+    get_tool_version_cmd = "bedtools --version | grep -i '^bedtools'"
+    stdout, stderr, returncode = run_cmd(get_tool_version_cmd)
+    if returncode:
+        sys.exit(f"Error: unable to get version info for bedtools.\nStdout: {stdout}\nStderr: {stderr}\n")
+
+    return stdout.strip().split(' ')[-1]
+
+
+def main(input_data, ref_genome, output_dir):
+    """
+    Python implementation of tool: bedtools (coverageBed) with hist option
 
     This is auto-generated Python code, please update as needed!
-    """
+   """
+    tool_ver = get_tool_version()
 
-    parser = argparse.ArgumentParser(description='Tool: bedtools-hist')
-    parser.add_argument('-i', '--input-file', dest='input_file', type=str,
-                        help='Input file', required=True)
-    parser.add_argument('-o', '--output-dir', dest='output_dir', type=str,
-                        help='Output directory', required=True)
+    input_args = [
+            '-a', ref_genome,
+            '-b', input_data,
+            '-hist'
+    ]
+    suffix = ".coverage_hist.tsv"
+    output_file = input_data + suffix
+
+    if output_dir.endswith("/"):
+        output_file = "".join([output_dir, input_data]) + suffix
+    else:
+        "/".join([output_dir, input_data]) + suffix
+
+    cmd = ['bedtools', 'coverage'] + input_args + [">", output_file]
+    print("Running bedtools " + tool_ver)
+    stdout, stderr, returncode = run_cmd(" ".join(cmd))
+    if returncode:
+        sys.exit(f"Error: 'bedtools coverage' failed.\nStdout: {stdout}\nStderr: {stderr}\n")
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Tool: bedtools')
+    parser.add_argument('-d', '--input-data', dest='input_data', type=str,
+                        help='Input file (.bam,.bed,.gff)', required=True)
+    parser.add_argument('-r', '--ref-genome', dest='ref_genome', type=str,
+                        help='Path to Reference genome bd file (i.e. hg38.bed)', required=False)
+    parser.add_argument('-o', '--output-directory', dest='output_dir', type=str,
+                        help='Output Directory', required=False)
     args = parser.parse_args()
 
-    if not os.path.isfile(args.input_file):
-        sys.exit('Error: specified input file %s does not exist or is not accessible!' % args.input_file)
+    if args.output_dir is None:
+        args.output_dir = "./"
+    if args.ref_genome is None:
+        sys.exit('Error: genome file is needed!')
 
+    if not os.path.isfile(args.input_data):
+        sys.exit('Error: specified input file %s does not exist or is not accessible!' % args.input_data)
+    if args.ref_genome is not None and not os.path.isfile(args.ref_genome):
+        sys.exit('Error: no valid genome specified!')
     if not os.path.isdir(args.output_dir):
         sys.exit('Error: specified output dir %s does not exist or is not accessible!' % args.output_dir)
+    if not args.input_data.endswith('.bed') and not args.input_data.endswith('.bam') and not args.input_data.endswith('.gff'):
+        sys.exit('Error: Invalid format for input file, need .bed, .gff or .bam!' % args.input_data)
 
-    subprocess.run(f"cp {args.input_file} {args.output_dir}/", shell=True, check=True)
-
-
-if __name__ == "__main__":
-    main()
-
+    main(args.input_data, args.ref_genome, args.output_dir)

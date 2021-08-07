@@ -1,7 +1,8 @@
 {
-    "input_file": "input/test_rg_3.bam",
-    "expected_output": "expected/expected.test_rg_3.bam",
+    "input_data": "input/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.bam",
+    "ref_genome": "input/hg38.bed",
+    "expected_output": "expected/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.precalculated_coverage_hist.tsv",
     "publish_dir": "outdir",
     "cpus": 1,
-    "mem": 0.5
+    "mem": 4
 }
