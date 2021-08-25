@@ -76,7 +76,7 @@ process file_smart_diff {
     
     cd output
     # only compare txt file
-    for f in `find . -type f -name "*.txt"`; do 
+    for f in `find . -type f`; do 
       if [ ! -f "../expected/\$f" ]
       then
         echo "Test FAILED, found unexpected file: \$f in the output tarball" && exit 1
