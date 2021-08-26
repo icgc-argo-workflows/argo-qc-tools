@@ -49,9 +49,12 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
 params.output_pattern = "*.cutadapt.log.qc.tgz"  // output file name pattern
-
+params.read1_adapter="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"
+params.read2_adapter="AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"
+params.min_length=1
+params.qual_cutoff=0
+params.extra_options=""
 
 process cutadapt {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
@@ -60,7 +63,7 @@ process cutadapt {
   cpus params.cpus
   memory "${params.mem} GB"
 
-  input:  // input, make update as needed
+  input:
     path input_R1
     path input_R2
 
@@ -69,14 +72,18 @@ process cutadapt {
 
   script:
     // add and initialize variables here as needed
-
+    
     """
     mkdir -p output_dir
 
     main.py \
-      -1 ${input_R1} \
-      -2 ${input_R2} \
-      -o output_dir
+      -1 ${input_R1} -2 ${input_R2} \
+      -o output_dir \
+      ${params.extra_options} \
+      -a ${params.read1_adapter} \
+      -A ${params.read2_adapter} \
+      -m ${params.min_length} \
+      -q ${params.qual_cutoff} \
     """
 }
 
