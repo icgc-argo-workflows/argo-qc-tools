@@ -65,7 +65,7 @@ def get_tool_version():
 def prep_qc_metrics(agg_bamstat, tool_ver):
     qc_metrics = {
         'tool': {
-            'name': 'samtools:stats',
+            'name': 'Samtools:stats',
             'version': tool_ver
         },
         'metrics': {}
@@ -73,17 +73,38 @@ def prep_qc_metrics(agg_bamstat, tool_ver):
 
     collected_sum_fields = {
         'raw total sequences': 'total_reads',
+        'filtered sequences': 'filtered_reads',
+        '1st fragments': '1st_fragments',
+        'last fragments': 'last_fragments',
         'reads mapped': 'mapped_reads',
+        'reads mapped and paired': 'reads_mapped_and_paired',
+        'reads unmapped': 'reads_unmapped',
         'reads paired': 'paired_reads',
         'reads properly paired': 'properly_paired_reads',
-        'pairs on different chromosomes': 'pairs_on_different_chromosomes',
+        'percentage of properly paired reads': 'percentage_of_properly_paired_reads',
+        'reads duplicated': 'reads_duplicated',
+        'reads MQ0': 'reads_MQ0',
+        'reads QC failed': 'reads_QC_failed',
+        'non-primary alignments': 'non-primary_alignments',
+        'supplementary alignments': 'supplementary_alignments',
         'total length': 'total_bases',
+        'total first fragment length': 'total_first_fragment_bases',
+        'total last fragment length': 'total_last_fragment_bases',
+        'pairs on different chromosomes': 'pairs_on_different_chromosomes',
+        'bases mapped': 'mapped_bases',
         'bases mapped (cigar)': 'mapped_bases_cigar',
+        'bases trimmed': 'bases_trimmed',
+        'bases duplicated': 'bases_duplicated',
         'mismatches': 'mismatch_bases',
         'error rate': 'error_rate',
         'bases duplicated': 'duplicated_bases',
+        'average length': 'average_length',
         'insert size average': 'average_insert_size',
-        'average length': 'average_length'
+        'insert size standard deviation': 'insert_size_standard_deviation',
+        'inward oriented pairs': 'inward_oriented_pairs',
+        'outward oriented pairs': 'outward_oriented_pairs',
+        'pairs with other orientation': 'pairs_with_other_orientation',
+        'percentage of properly paired reads (%)': 'percentage_of_properly_paired_reads'
     }
 
     with open(agg_bamstat, 'r') as f:
@@ -97,6 +118,20 @@ def prep_qc_metrics(agg_bamstat, tool_ver):
             qc_metrics['metrics'].update({
                 collected_sum_fields[cols[1]]: float(cols[2]) if ('.' in cols[2] or 'e' in cols[2]) else int(cols[2])
             })
+
+    metrics = qc_metrics['metrics']
+
+    metrics['total_reads_passed_filter'] = \
+        metrics['total_reads'] - metrics['filtered_reads']
+
+    if metrics['mapped_reads']:
+        metrics['percentage_of_non-primary_alignments'] = \
+            round(metrics['non-primary_alignments'] / metrics['mapped_reads'] * 100, 2)
+
+    metrics['percentage_of_mapped_reads'] = round(metrics['mapped_reads'] / metrics['total_reads'] * 100, 2)
+
+    metrics['percentage_of_pairs_on_different_chromosomes'] = \
+        round(metrics['pairs_on_different_chromosomes'] / (metrics['paired_reads'] / 2) * 100, 2)
 
     qc_metrics_file = 'qc_metrics.json'
     with open(qc_metrics_file, "w") as j:
