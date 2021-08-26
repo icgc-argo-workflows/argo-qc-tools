@@ -73,9 +73,31 @@ def prep_qc_metrics(output_dir, tool_ver):
     collect_fields = {
       'PF_BASES': ['pf_bases', 'integer'],
       'PF_ALIGNED_BASES': ['pf_aligned_bases', 'integer'],
+      'RIBOSOMAL_BASES': ['ribosomal_bases', 'integer'],
       'CODING_BASES': ['coding_bases', 'integer'],
+      'UTR_BASES': ['utr_bases', 'integer'],
+      'INTRONIC_BASES': ['intronic_bases', 'integer'],
+      'INTERGENIC_BASES': ['intergenic_bases', 'integer'],
+      'IGNORED_READS': ['ignored_reads', 'integer'],
+      'CORRECT_STRAND_READS': ['correct_strand_reads', 'integer'],
+      'INCORRECT_STRAND_READS': ['incorrect_strand_reads', 'integer'],
+      'NUM_R1_TRANSCRIPT_STRAND_READS': ['num_r1_transcript_strand_reads', 'integer'],
+      'NUM_R2_TRANSCRIPT_STRAND_READS': ['num_r2_transcript_strand_reads', 'integer'],
+      'NUM_UNEXPLAINED_READS': ['num_unexplained_reads', 'integer'],
+      'PCT_R1_TRANSCRIPT_STRAND_READS': ['pct_r1_transcript_strand_reads', 'float'],
+      'PCT_R2_TRANSCRIPT_STRAND_READS': ['pct_r2_transcript_strand_reads', 'float'],
+      'PCT_RIBOSOMAL_BASES': ['pct_ribosomal_bases', 'float'],
+      'PCT_CODING_BASES': ['pct_coding_bases', 'float'],
+      'PCT_UTR_BASES': ['pct_utr_bases', 'float'],
+      'PCT_INTRONIC_BASES': ['pct_intronic_bases', 'float'],
+      'PCT_INTERGENIC_BASES': ['pct_intergenic_bases', 'float'],
+      'PCT_MRNA_BASES': ['pct_mrna_bases', 'float'],
+      'PCT_USABLE_BASES': ['pct_usable_bases', 'float'],
       'PCT_CORRECT_STRAND_READS': ['pct_correct_strand_reads', 'float'],
-      'MEDIAN_CV_COVERAGE': ['median_cv_coverage', 'float']
+      'MEDIAN_CV_COVERAGE': ['median_cv_coverage', 'float'],
+      'MEDIAN_5PRIME_BIAS': ['median_5prime_bias', 'float'],
+      'MEDIAN_3PRIME_BIAS': ['median_3prime_bias', 'float'],
+      'MEDIAN_5PRIME_TO_3PRIME_BIAS': ['median_5prime_to_3prime_bias', 'float']
     }
 
     with open(output_dir+'/rna_metrics.txt', 'r') as mytext:
@@ -98,11 +120,11 @@ def prep_qc_metrics(output_dir, tool_ver):
     for h, c in zip(header, cols):
       if h not in collect_fields: continue
       if collect_fields[h][1] == 'string':
-        field_value = str(c)
+        field_value = str(c) if c else None
       elif collect_fields[h][1] == 'float':
-        field_value = float(c)
+        field_value = float(c) if c else None
       else: 
-        field_value = int(c)
+        field_value = int(c) if c else None
       qc_metrics['metrics'].update({
         collect_fields[h][0]: field_value
       })
