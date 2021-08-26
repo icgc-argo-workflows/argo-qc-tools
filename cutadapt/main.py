@@ -77,7 +77,7 @@ def get_tool_version():
 def prep_qc_metrics(cutadapt_log, tool_ver):
     qc_metrics = {
         'tool': {
-            'name': 'cutadapt',
+            'name': 'Cutadapt',
             'version': tool_ver
         },
         'metrics': {}
