@@ -81,7 +81,9 @@ process file_smart_diff {
         echo "Test FAILED, found unexpected file: \$f in the output tarball" && exit 1
       fi
       echo diff \$f ../expected/\$f
-      EFFECTIVE_DIFF=`diff \$f ../expected/\$f | egrep '<|>' || true`
+      EFFECTIVE_DIFF=`diff <( cat \$f | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' ) \
+                           <( cat ../expected/\$f | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' ) \
+                           | egrep '<|>' || true`
       if [ ! -z "\$EFFECTIVE_DIFF" ]
       then
         echo -e "Test FAILED, output file \$f mismatch:\n\$EFFECTIVE_DIFF" && exit 1
