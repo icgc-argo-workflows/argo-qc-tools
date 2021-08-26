@@ -41,53 +41,39 @@ params.container = ""
 params.input_file = ""
 params.expected_output = ""
 include { cutadapt } from '../main'
+
 process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
   input:
-    path output_R1
-    path output_R2
-    path expected_R1
-    path expected_R2
-    path output_log
-    path expected_log
+    path output_tgz
+    path expected_tgz
   output:
     stdout()
   script:
     """
-    gunzip -c ${output_R1} ${output_R2} | md5sum > normalized_output
-    gunzip -c ${expected_R1} ${expected_R2} | md5sum > normalized_expected
-    diff normalized_output normalized_expected \
-      && ( echo "Test PASSED" && exit 0 ) || ( echo "Read Test FAILED, output files R1 ${expected_R1} and R2 ${expected_R2} don't match expected." && exit 1 )
-    grep -vE "^Command line parameters|^Finished in" ${output_log} | diff ${expected_log} - \
-      && ( echo "Test PASSED && exit 0" ) || ( echo "Log Test FAILED, output file ${output_log} didn't match expected" && exit 1 )
+    mkdir expected actual
+    tar xvf ${output_tgz} -C actual
+    tar xvf ${expected_tgz} -C expected
     """
 }
 workflow checker {
   take:
     input_R1
     input_R2
-    expected_R1
-    expected_R2
-    expected_log
+    expected_tgz
   main:
     cutadapt(
       file(params.input_R1), file(params.input_R2)
     )
     file_smart_diff(
-      cutadapt.out.output_R1,
-      cutadapt.out.output_R2,
-      expected_R1,
-      expected_R2,
-      cutadapt.out.output_log,
-      expected_log
+      cutadapt.out.output_tgz,
+      expected_tgz
     )
 }
 workflow {
   checker(
     file(params.input_R1),
     file(params.input_R2),
-    file(params.expected_R1),
-    file(params.expected_R2),
-    file(params.expected_log)
+    file(params.expected_tgz)
   )
 }

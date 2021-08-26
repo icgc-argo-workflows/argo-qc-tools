@@ -50,7 +50,7 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
 params.input_file = ""
-params.output_pattern = "*.fastq.gz"  // output file name pattern
+params.output_pattern = "*.cutadapt.log.qc.tgz"  // output file name pattern
 
 
 process cutadapt {
@@ -65,9 +65,7 @@ process cutadapt {
     path input_R2
 
   output:
-    path "output_dir/out.fastq.gz", emit: output_R1
-    path "output_dir/out2.fastq.gz", emit: output_R2
-    path "output_dir/cutadapt.log", emit: output_log
+    path "output_dir/${params.output_pattern}", emit: output_tgz
 
   script:
     // add and initialize variables here as needed
