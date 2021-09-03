@@ -1,8 +1,9 @@
 {
-    "bam": "input/test_WES.bam",
-    "target_intervals": "input/test_Covered.interval",
-    "bait_intervals": "input/test_Padded.interval",
-    "expected_output": "expected/expected_WES.hs_metrics.txt",
+    "aligned_seq": "input/test.WES.cram",
+    "ref_genome": "input/test.chr17_1-100k.fasta.gz",
+    "target_intervals": "input/test.Covered.interval",
+    "bait_intervals": "input/test.Padded.interval",
+    "expected_output": "expected/expected.test.WES.hs_metrics.tgz",
     "publish_dir": "outdir",
     "cpus": 1,
     "mem": 0.5

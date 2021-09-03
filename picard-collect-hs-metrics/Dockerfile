@@ -17,6 +17,12 @@ RUN conda install --yes -c conda-forge openjdk=11.0.9.1
 # Fetch Picard
 RUN wget https://github.com/broadinstitute/picard/releases/download/2.25.7/picard.jar
 
+# add main.sh to /tools
+RUN mkdir /tools
+COPY main.sh /tools/
+ENV PATH="/tools:${PATH}"
+
+
 ENTRYPOINT ["/usr/bin/env"]
 
 CMD ["/bin/bash"]
