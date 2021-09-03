@@ -21,7 +21,7 @@ RUN apt-get -qq update \
 RUN wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.9.zip -O /tmp/fastqc.zip \
   && unzip /tmp/fastqc.zip -d /opt/ \
   && rm /tmp/fastqc.zip \
-  && chmod 777 /opt/FastQC/fastqc
+  && chmod 775 /opt/FastQC/fastqc
 
 ENV PATH="/opt/FastQC/:${PATH}"
 
