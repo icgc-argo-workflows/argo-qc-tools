@@ -4,7 +4,7 @@ FROM continuumio/miniconda3:4.9.2
 LABEL org.opencontainers.image.source https://github.com/icgc-argo-qc-wg/argo-qc-tools
 
 # add ps (required by nextflow)
-RUN apt-get -y update  && \
+RUN apt-get --allow-releaseinfo-change update  && \
     apt-get install -y procps && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
