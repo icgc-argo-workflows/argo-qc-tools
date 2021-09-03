@@ -17,3 +17,24 @@ Mandatory arguments:
                         If not available, provide the targets file here as well.
 ```
 
+## Output
+```
+<aligned_seq[no ext]>.hs_metrics.tgz
+    <aligned_seq[no ext]>.hs_metrics.txt ..... Original CollectHsMetrics output.
+    tar_content.json ........................... Files in this archive
+    hs_metrics.json ............................ HsMetrics fields extracted from the original output. 
+```
+
+List of the HsMetrics and their description can be found [here](http://broadinstitute.github.io/picard/picard-metric-definitions.html#HsMetrics).
+
+<br>
+
+Omitted fields from the `hs_metrics.json`:
+
+`BAIT_SET`: defaults to the baits file name, uninformative in our case
+
+`SAMPLE`: usually empty
+
+`LIBRARY`: usually empty
+
+`READ_GROUP`: usually empty
