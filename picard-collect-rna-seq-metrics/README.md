@@ -1,3 +1,40 @@
+
+
+# Usage
+```
+Use command to invoke the tool directly
+
+nextflow run main.nf --aligned_seq *** --ref_flat *** --ignore_seq *** --strand *** --ribosomal_interval_list ***
+
+Arguments:
+    --aligned_seq              Input SAM or BAM file. Required
+    --ref_flat                 Gene annotations in refFlat form. Required 
+    --ignore_seq               Seqence specified are ignored. Default: []
+    --strand                   For strand-specific library prep. Default: "NONE". Allowed values are: ["NONE",
+                               "FIRST_READ_TRANSCRIPTION_STRAND", "SECOND_READ_TRANSCRIPTION_STRAND"]
+    --ribosomal_interval_list  Location of rRNA sequences in genome, in interval_list format. Default: null
+
+```
+
+# How to get the output files
+You can specify the param `publish_dir` to a folder like `myout`, 
+```
+nextflow run main.nf --aligned_seq *** --ref_flat *** --ignore_seq *** --strand *** --ribosomal_interval_list *** --publish_dir myout
+```
+You will find the output files under the given folder. E.g.,
+```
+myout
+└── picardCollectRnaSeqMetrics
+    └── <aligned_seq>.collectrnaseqmetrics.tgz
+```
+
+# Output explanation
+```
+tar -tzf <aligned_seq>.collectrnaseqmetrics.tgz
+        --rna_metrics.txt         Original tool output
+        --qc_metrics.json         Information retrieved from the original output
+```
+
 # How to get the params.ref_flat.
 Param `ref_flat` provide the gene annotations in refFlat form. You can download the file from [URL](http://hgdownload.cse.ucsc.edu/goldenPath/hg38/database/refFlat.txt.gz)
 
@@ -20,14 +57,3 @@ nextflow run checker.nf -params-file test-job-1.json
 nextflow run checker.nf -params-file test-job-2.json
 ```
 
-# How to get the output files
-You can specify the param `publish_dir` to a folder like `myout`, 
-```
-nextflow run checker.nf -params-file test-job-1.json --publish_dir myout
-```
-You will find the output files under the given folder. E.g.,
-```
-myout
-└── checker_picardCollectRnaSeqMetrics
-    └── sample_01_L1_Aligned.out.bam.collectrnaseqmetrics.tgz
-```
