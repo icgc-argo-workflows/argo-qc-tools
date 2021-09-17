@@ -48,7 +48,7 @@ params.container_version = ""
 params.container = ""
 
 // tool specific params go here, add / change as needed
-params.input_file = "input/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.bam"
+params.input_file = "input/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.sub.bam"
 params.ref_genome = "input/hg38.bed"
 params.expected_output = "expected/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.precalculated_coverage_hist.tsv"
 
