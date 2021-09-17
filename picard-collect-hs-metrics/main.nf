@@ -29,14 +29,13 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.0'  // package version
+version = '0.2.0'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo-qc-wg/argo-qc-tools.picard-collect-hs-metrics'
 ]
 default_container_registry = 'ghcr.io'
 /********************************************************************/
-
 
 // universal params go here
 params.container_registry = ""
@@ -45,15 +44,52 @@ params.container = ""
 
 params.cpus = 1
 params.mem = 4  // GB
-params.publish_dir = "picard-collect-hs-metrics_outdir"  // set to empty string will disable publishDir
+params.publish_dir = ""  // set to empty string will disable publishDir
+params.help = null
 
 
 // tool specific parmas go here, add / change as needed
-params.bam = ""
-params.target_intervals= ""
-params.bait_intervals= ""
-params.output_pattern = "*.hs_metrics.txt"  // output file name pattern
+params.aligned_seq = "" // bam or cram
+params.ref_genome = ""  // reference genome: *.[fa|fna|fasta] or *.[fa|fna|fasta].gz, index files: *.fai [*.gzi]
+params.target_intervals = ""
+params.bait_intervals = ""
 
+
+def helpMessage() {
+    log.info"""
+picard-collect-hs-metrics
+
+USAGE
+
+Mandatory arguments:
+    --aligned_seq       Input alignments, can be bam or cram.
+    --ref_genome        Reference genome (uncompressed or bgzipped fasta file): *.[fa|fna|fasta] or *.[fa|fna|fasta].gz
+                        The *.fai index must be available, as well as the *.gzi in case of a compressed fasta file.
+    --target_intervals  Targets file in interval format (dictionary header + bed).
+                        These are usually named as 'covered' files by the capture-kit provider.
+    --bait_intervals    Baits file in interval format (dictionary header + bed).
+                        These are usually named as 'padded' files by the capture-kit provider.
+                        If not available, provide the targets file here as well.
+    """.stripIndent()
+}
+
+if (params.help) exit 0, helpMessage()
+
+// Validate inputs
+if(params.aligned_seq == "") error "Missing mandatory '--aligned_seq'"
+if(params.ref_genome == "") error "Missing mandatory '--ref_genome'"
+if(params.target_intervals == "") error "Missing mandatory '--target_intervals'"
+if(params.bait_intervals == "") error "Missing mandatory '--bait_intervals'"
+
+log.info ""
+log.info "input file: ${params.aligned_seq}"
+log.info "reference genome file: ${params.ref_genome}"
+log.info "targets file: ${params.target_intervals}"
+log.info "baits file: ${params.bait_intervals}"
+log.info ""
+
+
+include { getSecondaryFiles } from './wfpr_modules/github.com/icgc-argo/data-processing-utility-tools/helper-functions@1.0.1/main.nf'
 
 process picardCollectHsMetrics {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
@@ -63,17 +99,18 @@ process picardCollectHsMetrics {
   memory "${params.mem} GB"
 
   input:
-    path bam
+    path aligned_seq
+    path ref_genome
+    path ref_genome_idx
     path target_intervals
     path bait_intervals
 
   output:
-    path "${params.output_pattern}", emit: output_file
+    path "*.hs_metrics.tgz", emit: hs_tar
 
   shell:
-
     '''
-    java -jar /picard.jar CollectHsMetrics --INPUT !{bam} --TARGET_INTERVALS !{target_intervals} --BAIT_INTERVALS !{bait_intervals} --OUTPUT \$(basename !{bam} .bam).hs_metrics.txt
+    main.sh -i !{aligned_seq} -r !{ref_genome} -t !{target_intervals} -b !{bait_intervals}
     '''
 }
 
@@ -82,7 +119,9 @@ process picardCollectHsMetrics {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   picardCollectHsMetrics(
-    file(params.bam),
+    file(params.aligned_seq),
+    file(params.ref_genome),
+    Channel.fromPath(getSecondaryFiles(params.ref_genome, ['fai','gzi']), checkIfExists: false).collect(),
     file(params.target_intervals),
     file(params.bait_intervals)
   )

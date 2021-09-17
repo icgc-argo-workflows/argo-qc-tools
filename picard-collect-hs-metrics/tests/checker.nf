@@ -34,7 +34,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.0'  // package version
+version = '0.2.0'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo-qc-wg/argo-qc-tools.picard-collect-hs-metrics'
@@ -48,13 +48,14 @@ params.container_version = ""
 params.container = ""
 
 // tool specific parmas go here, add / change as needed
-params.bam = ""
-params.target_intervals= ""
-params.bait_intervals= ""
+params.aligned_seq = "" // bam or cram
+params.ref_genome = ""  // reference genome: *.[fa|fna|fasta] or *.[fa|fna|fasta].gz, index files: *.fai [*.gzi]
+params.target_intervals = ""
+params.bait_intervals = ""
 params.expected_output = ""
 
 include { picardCollectHsMetrics } from '../main'
-
+include { getSecondaryFiles } from './wfpr_modules/github.com/icgc-argo/data-processing-utility-tools/helper-functions@1.0.1/main.nf'
 
 process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
@@ -66,36 +67,54 @@ process file_smart_diff {
   output:
     stdout()
 
-  script:
-    """
-    # we need to remove the date field from the files before comparison
+  shell:
+    '''
+    mkdir output expected
 
-    grep -v 'Started on' ${output_file} > normalized_output
+    tar xzf !{output_file} -C output
+    tar xzf !{expected_file} -C expected
 
-    grep -v 'Started on' ${expected_file} > normalized_expected
+    cd output
+    for f in *; do
+      if [ ! -f "../expected/$f" ]
+      then
+        echo "Test FAILED, found unexpected file: $f in the output tarball" && exit 1
+      fi
+    done
+    cd ..
+    
+    # three files to check: hs_metrics.json, tar_content.json, test.WES.hs_metrics.txt
+    diff output/hs_metrics.json expected/hs_metrics.json && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED for hs_metrics.json, output file mismatch." && exit 1 )
+    diff output/tar_content.json expected/tar_content.json && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED for tar_content.json, output file mismatch." && exit 1 )
 
-    diff normalized_output normalized_expected \
-      && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
-    """
+    # we need to remove the date entry before comparing test.WES.hs_metrics.txt
+    grep -v "Started on" output/test.WES.hs_metrics.txt > normalized_output
+    grep -v "Started on" expected/test.WES.hs_metrics.txt > normalized_expected
+    diff normalized_output normalized_expected && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED for test.WES.hs_metrics.txt, output file mismatch." && exit 1 )
+    '''
 }
 
 
 workflow checker {
   take:
-    bam
+    aligned_seq
+    ref_genome
+    ref_genome_idx
     target_intervals
     bait_intervals
     expected_output
 
   main:
     picardCollectHsMetrics(
-      bam,
+      aligned_seq,
+      ref_genome,
+      ref_genome_idx,
       target_intervals,
       bait_intervals
     )
 
     file_smart_diff(
-      picardCollectHsMetrics.out.output_file,
+      picardCollectHsMetrics.out.hs_tar,
       expected_output
     )
 }
@@ -103,7 +122,9 @@ workflow checker {
 
 workflow {
   checker(
-    file(params.bam),
+    file(params.aligned_seq),
+    file(params.ref_genome),
+    Channel.fromPath(getSecondaryFiles(params.ref_genome, ['fai','gzi']), checkIfExists: false).collect(),
     file(params.target_intervals),
     file(params.bait_intervals),
     file(params.expected_output)
