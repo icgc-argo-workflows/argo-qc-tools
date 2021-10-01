@@ -48,7 +48,9 @@ params.mem = 1  // GB
 params.publish_dir = ""  // set to empty string will disable publishDir
 
 
-// tool specific parmas go here, add / change as needed
+// tool specific params go here, add / change as needed
+params.input_R1=""
+params.input_R2=""
 params.output_pattern = "*.cutadapt.log.qc.tgz"  // output file name pattern
 params.read1_adapter="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"
 params.read2_adapter="AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"
@@ -72,18 +74,17 @@ process cutadapt {
 
   script:
     // add and initialize variables here as needed
-    
+
     """
     mkdir -p output_dir
 
     main.py \
       -1 ${input_R1} -2 ${input_R2} \
       -o output_dir \
-      ${params.extra_options} \
       -a ${params.read1_adapter} \
       -A ${params.read2_adapter} \
       -m ${params.min_length} \
-      -q ${params.qual_cutoff} \
+      -q ${params.qual_cutoff} ${params.extra_options}
     """
 }
 
@@ -92,6 +93,7 @@ process cutadapt {
 // using this command: nextflow run icgc-argo-qc-wg/argo-qc-tools/cutadapt/main.nf -r cutadapt.v3.4.0 --params-file
 workflow {
   cutadapt(
-    file(params.input_R1), file(params.input_R2)
+    file(params.input_R1),
+    file(params.input_R2)
   )
 }

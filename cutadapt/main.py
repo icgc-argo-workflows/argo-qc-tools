@@ -52,8 +52,8 @@ def run_cmd(cmd):
 
 def prepare_tarball(qc_metrics, logfile):
     tar_content = {
-        'qc_metrics': qc_metrics,
-        'cutadapt_log': logfile
+        'qc_metrics': os.path.basename(qc_metrics),
+        'cutadapt_log': os.path.basename(logfile)
     }
 
     with open('tar_content.json', 'w') as t:

@@ -49,11 +49,27 @@ process file_smart_diff {
     path expected_tgz
   output:
     stdout()
-  script:
+
+  shell:
     """
     mkdir expected actual
-    tar xvf ${output_tgz} -C actual
-    tar xvf ${expected_tgz} -C expected
+    tar xvf !{output_tgz} -C actual
+    tar xvf !{expected_tgz} -C expected
+
+    export NAME=`basename !{output_tgz} .cutadapt.log.qc.tgz`
+
+    diff actual/tar_content.json expected/tar_content.json \
+      && ( echo "TAR_CONTENT: Test PASSED" && exit 0 ) || ( echo "TAR_CONTENT: Test FAILED. tar_content.json files do not match" && exit 1 )
+
+    diff actual/\${NAME}.cutadapt.log.qc_metrics.json expected/\${NAME}.cutadapt.log.qc_metrics.json \
+      && ( echo "METRICS: Test PASSED" && exit 0 ) || ( echo "METRICS: Test FAILED. \${NAME}.cutadapt.log.qc_metrics.json files do not match" && exit 1 )
+
+    grep -vE "^Command line parameters|^Finished in" actual/\${NAME}.cutadapt.log > actual/cleaned.logfile
+    grep -vE "^Command line parameters|^Finished in" expected/\${NAME}.cutadapt.log > expected/cleaned.logfile
+
+    diff actual/cleaned.logfile expected/cleaned.logfile \
+      && ( echo "LOGFILE: Test PASSED && exit 0" ) || ( echo "LOGFILE: Log Test FAILED. \${NAME}.cutadapt.log files do not match" && exit 1 )
+
     """
 }
 workflow checker {
