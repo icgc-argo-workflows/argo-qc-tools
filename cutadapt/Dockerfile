@@ -1,6 +1,6 @@
 ############################################################
 # Dockerfile to build Cutadapt container images
-# Based on genomicpariscentre/cutadapt:2.10
+# Inspiration taken from genomicpariscentre/cutadapt:2.10
 # https://github.com/GenomicParisCentre/dockerfiles/blob/master/cutadapt/2.10/Dockerfile
 ############################################################
 
