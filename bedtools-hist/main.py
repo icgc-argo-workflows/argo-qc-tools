@@ -30,7 +30,8 @@ import os
 import sys
 import argparse
 import subprocess
-
+import json
+import tarfile
 
 def run_cmd(cmd):
     proc = subprocess.Popen(
@@ -52,7 +53,7 @@ def run_cmd(cmd):
 def get_tool_version():
     """
     Get version of the bedtools
-   """
+    """
     get_tool_version_cmd = "bedtools --version | grep -i '^bedtools'"
     stdout, stderr, returncode = run_cmd(get_tool_version_cmd)
     if returncode:
@@ -61,12 +62,53 @@ def get_tool_version():
     return stdout.strip().split(' ')[-1]
 
 
+def prep_qc_metrics(coverage_hist, tool_ver):
+
+    json_rows = []
+    with open(coverage_hist, 'r') as f:
+        for row in f:
+            cols = row.strip().split('\t')
+            interval = ",".join(cols[0:3])
+            json_rows.append({interval: cols[-1]})
+
+    qc_metrics = {
+        'tool': {
+            'name': 'Bedtools:coverage_hist',
+            'version': tool_ver
+        },
+        'metrics': json_rows
+    }
+
+    qc_metrics_file = 'qc_metrics.json'
+    with open(qc_metrics_file, "w") as j:
+        j.write(json.dumps(qc_metrics, indent=2))
+
+    return qc_metrics_file
+
+
+def prepare_tarball(input_data, qc_metrics, hist_coverage):
+    tar_content = {
+        'qc_metrics': qc_metrics,
+        'hist_coverage': hist_coverage
+    }
+
+    with open('tar_content.json', 'w') as t:
+        t.write(json.dumps(tar_content, indent=2))
+
+    files_to_tar = ['tar_content.json', qc_metrics, hist_coverage]
+
+    tarfile_name = f"{os.path.basename(input_data)}.coverage_hist.qc.tgz"
+    with tarfile.open(tarfile_name, "w:gz") as tar:
+        for f in files_to_tar:
+            tar.add(f, arcname=os.path.basename(f))
+
+
 def main(input_data, ref_genome, output_dir):
     """
     Python implementation of tool: bedtools (coverageBed) with hist option
 
     This is auto-generated Python code, please update as needed!
-   """
+    """
     tool_ver = get_tool_version()
 
     input_args = [
@@ -87,6 +129,12 @@ def main(input_data, ref_genome, output_dir):
     stdout, stderr, returncode = run_cmd(" ".join(cmd))
     if returncode:
         sys.exit(f"Error: 'bedtools coverage' failed.\nStdout: {stdout}\nStderr: {stderr}\n")
+
+    # parse bedtools output and put it in qc_metrics.json
+    qc_metrics_file = prep_qc_metrics(output_file, tool_ver)
+
+    # prepare tarball to include output files and qc_metrics.json
+    prepare_tarball(input_data, qc_metrics_file, output_file)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Tool: bedtools')

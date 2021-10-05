@@ -50,7 +50,7 @@ params.container = ""
 // tool specific params go here, add / change as needed
 params.input_file = "input/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.sub.bam"
 params.ref_genome = "input/hg38.bed"
-params.expected_output = "expected/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.precalculated_coverage_hist.tsv"
+params.expected_output = "expected/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.precalculated_coverage_hist.tgz"
 
 include { coverageHistogram } from '../main'
 
@@ -68,9 +68,7 @@ process file_smart_diff {
   script:
     """
     # Note: this is only for demo purpose, please write your own 'diff' according to your own needs.
-    # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
-    # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
-    diff ${output_file} ${expected_file} \
+    diff <(tar -tf ${output_file}) <(tar -tf ${expected_file}) \
       && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
 }
@@ -89,7 +87,7 @@ workflow checker {
     )
 
     file_smart_diff(
-      coverageHistogram.out.qc_tsv,
+      coverageHistogram.out.qc_tar,
       expected_output
     )
 }

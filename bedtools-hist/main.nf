@@ -48,7 +48,7 @@ params.mem = 4  // GB
 params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific params go here, add / change as needed
-params.input_data = "tests/input/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.bam"
+params.input_data = "tests/input/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.sub.bam"
 params.ref_genome = "tests/input/hg38.bed"
 
 
@@ -64,7 +64,7 @@ process coverageHistogram {
     path ref_genome
 
   output:
-    path "${input_data}.coverage_hist.tsv", emit: qc_tsv
+    path "${input_data}.coverage_hist.qc.tgz", emit: qc_tar
 
   script:
     """
