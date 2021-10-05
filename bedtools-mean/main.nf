@@ -48,7 +48,7 @@ params.mem = 4  // GB
 params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific params go here, add / change as needed
-params.input_data = "tests/input/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.bam"
+params.input_data = "tests/input/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.sub.bam"
 params.interval_file = "tests/input/LTR_intervals.chr22.bed"
 
 
@@ -64,7 +64,7 @@ process coverageMeanTarget {
       path interval_file
 
     output:
-      path "${input_data}.coverage_mean.tsv", emit: qc_tsv
+      path "${input_data}.coverage_mean.qc.tgz", emit: qc_tar
 
     script:
       """

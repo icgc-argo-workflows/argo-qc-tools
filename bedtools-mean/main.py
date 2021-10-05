@@ -30,6 +30,8 @@ import os
 import sys
 import argparse
 import subprocess
+import json
+import tarfile
 
 
 def run_cmd(cmd):
@@ -61,7 +63,48 @@ def get_tool_version():
     return stdout.strip().split(' ')[-1]
 
 
-def main(input_data, output_dir, interval_file):
+def prep_qc_metrics(coverage_mean, tool_ver):
+
+    json_rows = []
+    with open(coverage_mean, 'r') as f:
+        for row in f:
+            cols = row.strip().split('\t')
+            interval = ",".join(cols[0:3])
+            json_rows.append({interval: cols[-1]})
+
+    qc_metrics = {
+        'tool': {
+            'name': 'Bedtools:coverage_mean',
+            'version': tool_ver
+        },
+        'metrics': json_rows
+    }
+
+    qc_metrics_file = 'qc_metrics.json'
+    with open(qc_metrics_file, "w") as j:
+        j.write(json.dumps(qc_metrics, indent=2))
+
+    return qc_metrics_file
+
+
+def prepare_tarball(input_data, qc_metrics, mean_coverage):
+    tar_content = {
+        'qc_metrics': qc_metrics,
+        'mean_coverage': mean_coverage
+    }
+
+    with open('tar_content.json', 'w') as t:
+        t.write(json.dumps(tar_content, indent=2))
+
+    files_to_tar = ['tar_content.json', qc_metrics, mean_coverage]
+
+    tarfile_name = f"{os.path.basename(input_data)}.coverage_mean.qc.tgz"
+    with tarfile.open(tarfile_name, "w:gz") as tar:
+        for f in files_to_tar:
+            tar.add(f, arcname=os.path.basename(f))
+
+
+def main(input_data, interval_file, output_dir):
     """
     Python implementation of tool: bedtools (coverageBed) with mean option
 
@@ -88,6 +131,11 @@ def main(input_data, output_dir, interval_file):
     if returncode:
         sys.exit(f"Error: 'bedtools coverage' failed.\nStdout: {stdout}\nStderr: {stderr}\n")
 
+    # parse bedtools output and put it in qc_metrics.json
+    qc_metrics_file = prep_qc_metrics(output_file, tool_ver)
+
+    # prepare tarball to include output files and qc_metrics.json
+    prepare_tarball(input_data, qc_metrics_file, output_file)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Tool: bedtools')
@@ -113,4 +161,4 @@ if __name__ == '__main__':
     if not args.input_data.endswith('.bed') and not args.input_data.endswith('.bam') and not args.input_data.endswith('.gff'):
         sys.exit('Error: Invalid format for input file, need .bed, .gff or .bam!' % args.input_data)
 
-    main(args.input_data, args.output_dir, args.interval_file)
+    main(args.input_data, args.interval_file, args.output_dir)
