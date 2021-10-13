@@ -1,7 +1,7 @@
 import os
 import re
 from setuptools import setup, find_packages
-with open("deTiN/__about__.py") as reader:
+with open("/tools/deTiN/__about__.py") as reader:
     __version__ = re.search(
         r'__version__ ?= ?[\'\"]([\w.]+)[\'\"]',
         reader.read()

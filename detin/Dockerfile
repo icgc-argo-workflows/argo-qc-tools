@@ -1,4 +1,4 @@
-FROM continuumio/miniconda:4.7.12
+FROM continuumio/miniconda3:4.9.2
 
 LABEL org.opencontainers.image.source https://github.com/icgc-argo-qc-wg/argo-qc-tools
 
@@ -10,14 +10,12 @@ RUN apt-get --allow-releaseinfo-change update  && \
 
 
 # Add main wrapper:
-RUN mkdir -p /tools
+COPY deTiN /tools/deTiN
+
 ENV PATH="/tools:${PATH}"
-COPY deTiN /tools/
-
 # install requirements for deTiN
-CMD ["/tools/deTiN/setup.py install"]
-ENTRYPOINT ["python"]
 
+RUN python /tools/deTiN/setup.py install
 
 ENTRYPOINT ["/usr/bin/env"]
 
