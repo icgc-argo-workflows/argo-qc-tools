@@ -384,7 +384,9 @@ class output:
             denominator = numerator + np.array(
                 [1 - self.ssnv_based_model.p_somatic] * np.expand_dims(
                     np.nan_to_num(self.ssnv_based_model.p_TiN_given_G[:, self.TiN_int]), 1))
-        self.SSNVs.loc[:, ('p_somatic_given_TiN')] = np.nan_to_num(np.true_divide(numerator, denominator))
+        # print(">>>>")
+        self.SSNVs = self.SSNVs.assign(p_somatic_given_TiN=np.nan_to_num(np.true_divide(numerator, denominator))[0])
+        # self.SSNVs.loc[:, ('p_somatic_given_TiN')] = np.nan_to_num(np.true_divide(numerator, denominator))
         # expected normal allele fraction given TiN and tau
         af_n_given_TiN = np.multiply(self.ssnv_based_model.tumor_f, self.ssnv_based_model.CN_ratio[:, self.TiN_int])
         # probability of normal allele fraction less than or equal to predicted fraction
@@ -407,8 +409,11 @@ class output:
                     [1 - indel_model.p_somatic] * np.expand_dims(np.nan_to_num(
                         indel_model.p_TiN_given_G[:, self.TiN_int]), 1))
                 af_n_given_TiN = np.multiply(indel_model.tumor_f, indel_model.CN_ratio[:, self.TiN_int])
-                self.indels.loc[:, ('p_somatic_given_TiN')] = np.nan_to_num(np.true_divide(numerator, denominator))
-                self.indels.loc[:, 'p_outlier'] = indel_model.rv_normal_af.cdf(af_n_given_TiN)
+                self.indels = self.indels.assign(
+                    p_somatic_given_TiN=np.nan_to_num(np.nan_to_num(np.true_divide(numerator, denominator))[0]))
+                # self.indels.loc[:, ('p_somatic_given_TiN')] = np.nan_to_num(np.true_divide(numerator, denominator))
+                self.indels = self.indels.assign(p_outlier=indel_model.rv_normal_af.cdf(af_n_given_TiN))
+                # self.indels.loc[:, 'p_outlier'] = indel_model.rv_normal_af.cdf(af_n_given_TiN)
                 if self.TiN_int == 0:
                     print('Estimated 0 TiN no indels will be recovered outputing deTiN statistics for each site')
                 elif self.use_outlier_threshold:

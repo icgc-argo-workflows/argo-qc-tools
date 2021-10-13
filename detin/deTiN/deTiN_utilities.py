@@ -250,11 +250,11 @@ def plot_aSCNA_het_data(do):
     normal_af = ax.plot(do.ascna_based_model.hets['genomic_coord_x'], do.ascna_based_model.hets['AF_N'], c=[1, 0, 0], marker='.',
             ls='None', ms=5)
     fig.set_dpi(300)
-    chrs = hg19_to_linear_positions(np.linspace(0, 23, 24), np.ones([23]))
+    chrs = hg19_to_linear_positions(np.linspace(0, 23, 24), np.ones([24]))
     for c in chrs:
         ax.plot([c, c], [0, 1], 'k--')
     plt.legend(handles=[tumor_af[0], normal_af[0]],labels=['Tumor', 'Normal'])
-    ax.set_xticks((chrs[1:] + chrs[:-1]) / 2)
+    ax.set_xticks((chrs + chrs) / 2)
     ax.set_xticklabels((np.linspace(1, 24, 24, dtype=int)), size=5, rotation=90)
     ax.set_yticks(np.linspace(0, 1, 5))
     ax.set_yticklabels(np.linspace(0, 1, 5), size=5)
