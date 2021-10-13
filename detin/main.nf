@@ -45,12 +45,19 @@ params.container = ""
 
 params.cpus = 1
 params.mem = 1  // GB
-params.publish_dir = ""  // set to empty string will disable publishDir
+params.publish_dir = "outdir"  // set to empty string will disable publishDir
 
 
-// tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.output_pattern = "*"  // output file name pattern
+// tool specific params go here, add / change as needed
+params.mutation_data_path = ""
+params.cn_data_path = ""
+params.tumor_het_data = ""
+params.normal_het_data = ""
+params.exac_data_path = ""
+params.indel_data_path = ""
+params.indel_data_type = "MuTect2"
+params.output_name = ""
+params.output_pattern = "*.TiN_estimate.txt"  // output file name pattern
 
 
 process detin {
@@ -60,22 +67,25 @@ process detin {
   cpus params.cpus
   memory "${params.mem} GB"
 
-  input:  // input, make update as needed
-    path input_file
+  input:
+    file mutation_data_path
+    file cn_data_path
+    file tumor_het_data
+    file normal_het_data
+    file exac_data_path
+    file indel_data_path
+    val indel_data_type
+    val output_name
 
-  output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output_file
+  output:
+    path "outdir/${params.output_pattern}", emit: output_file
 
   script:
-    // add and initialize variables here as needed
 
     """
     mkdir -p output_dir
 
-    main.py \
-      -i ${input_file} \
-      -o output_dir
-
+    python /tools/deTiN/deTiN.py --mutation_data_path ${mutation_data_path} --cn_data_path ${cn_data_path} --tumor_het_data ${tumor_het_data} --normal_het_data ${normal_het_data} --exac_data_path ${exac_data_path} --output_name ${output_name} --indel_data_path ${indel_data_path} --indel_data_type ${indel_data_type} --output_dir ${params.publish_dir}
     """
 }
 
@@ -84,6 +94,13 @@ process detin {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   detin(
-    file(params.input_file)
+    file(params.mutation_data_path)
+    file(params.cn_data_path)
+    file(params.tumor_het_data)
+    file(params.normal_het_data)
+    file(params.exac_data_path)
+    file(params.indel_data_path)
+    params.indel_data_type
+    params.output_name
   )
 }

@@ -48,7 +48,14 @@ params.container_version = ""
 params.container = ""
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
+params.mutation_data_path = ""
+params.cn_data_path = ""
+params.tumor_het_data = ""
+params.normal_het_data = ""
+params.exac_data_path = ""
+params.indel_data_path = ""
+params.indel_data_type = ""
+params.output_name = ""
 params.expected_output = ""
 
 include { detin } from '../main'
@@ -84,12 +91,26 @@ process file_smart_diff {
 
 workflow checker {
   take:
-    input_file
+    mutation_data_path
+    cn_data_path
+    tumor_het_data
+    normal_het_data
+    exac_data_path
+    indel_data_path
+    indel_data_type
+    output_name
     expected_output
 
   main:
     detin(
-      input_file
+      mutation_data_path,
+      cn_data_path,
+      tumor_het_data,
+      normal_het_data,
+      exac_data_path,
+      indel_data_path,
+      indel_data_type,
+      output_name
     )
 
     file_smart_diff(
@@ -98,10 +119,17 @@ workflow checker {
     )
 }
 
-
+//println params
 workflow {
   checker(
-    file(params.input_file),
+    file(params.mutation_data_path),
+    file(params.cn_data_path),
+    file(params.tumor_het_data),
+    file(params.normal_het_data),
+    file(params.exac_data_path),
+    file(params.indel_data_path),
+    params.indel_data_type,
+    params.output_name,
     file(params.expected_output)
   )
 }
