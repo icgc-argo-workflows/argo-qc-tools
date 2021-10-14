@@ -65,7 +65,7 @@ process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
 
   input:
-    path output_file
+    path output_path
     path expected_file
 
   output:
@@ -73,18 +73,9 @@ process file_smart_diff {
 
   script:
     """
-    # Note: this is only for demo purpose, please write your own 'diff' according to your own needs.
-    # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
-    # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
-
-    cat ${output_file[0]} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
-
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
-
-    diff normalized_output normalized_expected \
-      && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
+    cut -f1-6 ${output_path}/*.txt | sort  > ${output_path}/output_cat.txt
+    diff  ${output_path}/output_cat.txt ${expected_file} \
+      && ( echo 'Test PASSED' && exit 0 ) || ( echo 'Test FAILED, output file mismatch.' && exit 1 )
     """
 }
 
@@ -99,7 +90,7 @@ workflow checker {
     indel_data_path
     indel_data_type
     output_name
-    expected_output
+    expected_file
 
   main:
     detin(
@@ -114,12 +105,12 @@ workflow checker {
     )
 
     file_smart_diff(
-      detin.out.output_file,
-      expected_output
+      detin.out.output_path,
+      expected_file
     )
 }
 
-//println params
+
 workflow {
   checker(
     file(params.mutation_data_path),
@@ -130,6 +121,6 @@ workflow {
     file(params.indel_data_path),
     params.indel_data_type,
     params.output_name,
-    file(params.expected_output)
+    file(params.expected_file)
   )
 }

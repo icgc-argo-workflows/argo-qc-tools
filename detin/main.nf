@@ -78,14 +78,14 @@ process detin {
     val output_name
 
   output:
-    path "outdir/${params.output_pattern}", emit: output_file
+    path "outdir", emit: output_path
 
   script:
 
     """
-    mkdir -p output_dir
+    mkdir -p outdir
 
-    python /tools/deTiN/deTiN.py --mutation_data_path ${mutation_data_path} --cn_data_path ${cn_data_path} --tumor_het_data ${tumor_het_data} --normal_het_data ${normal_het_data} --exac_data_path ${exac_data_path} --output_name ${output_name} --indel_data_path ${indel_data_path} --indel_data_type ${indel_data_type} --output_dir ${params.publish_dir}
+    python /tools/deTiN/deTiN.py --mutation_data_path ${mutation_data_path} --cn_data_path ${cn_data_path} --tumor_het_data ${tumor_het_data} --normal_het_data ${normal_het_data} --exac_data_path ${exac_data_path} --output_name ${output_name} --indel_data_path ${indel_data_path} --indel_data_type ${indel_data_type} --output_dir outdir
     """
 }
 

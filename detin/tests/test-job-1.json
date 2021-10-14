@@ -7,7 +7,7 @@
     "indel_data_path": "input/MuTect2.call_stats.txt",
     "indel_data_type": "MuTect2",
     "output_name": "10_percent_TiN_simulation",
-    "expected_output": "expected/10_percent_TiN_simulation.TiN_estimate.txt",
+    "expected_file": "expected/expected_output_cat.txt",
     "publish_dir": "outdir",
     "cpus": 1,
     "mem": 0.5
