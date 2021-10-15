@@ -108,7 +108,7 @@ def prepare_tarball(input_data, qc_metrics, mean_coverage):
 
     files_to_tar = ['tar_content.json', qc_metrics, mean_coverage]
 
-    tarfile_name = f"{os.path.basename(input_data)}.coverage_mean.qc.tgz"
+    tarfile_name = f"{os.path.basename(input_data)}.coverage_mean.tgz"
     with tarfile.open(tarfile_name, "w:gz") as tar:
         for f in files_to_tar:
             tar.add(f, arcname=os.path.basename(f))

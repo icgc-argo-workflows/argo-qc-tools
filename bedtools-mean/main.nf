@@ -64,7 +64,7 @@ process coverageMeanTarget {
       path interval_file
 
     output:
-      path "${input_data}.coverage_mean.qc.tgz", emit: qc_tar
+      path "${input_data}.coverage_mean.tgz", emit: qc_tar
 
     script:
       """
