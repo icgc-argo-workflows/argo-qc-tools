@@ -64,18 +64,28 @@ def get_tool_version():
 
 
 def prep_qc_metrics(coverage_mean, tool_ver):
-
-    json_rows = []
+    intervals = 0
+    coverage = 0
+    covered_intervals = 0
+    max_coverage = 0
     with open(coverage_mean, 'r') as f:
         for row in f:
             cols = row.strip().split('\t')
-            interval = ",".join(cols[0:3])
-            json_rows.append({interval: cols[-1]})
+            current_coverage = float(cols[-1])
+            intervals += 1
+            if current_coverage != 0:
+                covered_intervals += 1
+                coverage += current_coverage
+                max_coverage = current_coverage if max_coverage < current_coverage else max_coverage
+
+    json_rows = [{"intervals_covered": covered_intervals},
+                 {"mean_coverage": round(coverage / intervals, 3)},
+                 {"max_coverage": max_coverage}]
 
     qc_metrics = {
         'tool': {
             'name': 'Bedtools:coverage_mean',
-            'version': tool_ver
+            'version': tool_ver.strip('v')
         },
         'metrics': json_rows
     }
@@ -137,6 +147,7 @@ def main(input_data, interval_file, output_dir):
     # prepare tarball to include output files and qc_metrics.json
     prepare_tarball(input_data, qc_metrics_file, output_file)
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Tool: bedtools')
     parser.add_argument('-d', '--input-data', dest='input_data', type=str,
@@ -158,7 +169,9 @@ if __name__ == '__main__':
         sys.exit('Error: no valid interval file specified!')
     if not os.path.isdir(args.output_dir):
         sys.exit('Error: specified output dir %s does not exist or is not accessible!' % args.output_dir)
-    if not args.input_data.endswith('.bed') and not args.input_data.endswith('.bam') and not args.input_data.endswith('.gff'):
-        sys.exit('Error: Invalid format for input file, need .bed, .gff or .bam!' % args.input_data)
+    if not args.input_data.endswith('.bed') and not args.input_data.endswith('.bam') \
+            and not args.input_data.endswith('.gff') \
+            and not args.input_data.endswith('.cram'):
+        sys.exit('Error: Invalid format for input file, need .bed, .gff, .cram or .bam!' % args.input_data)
 
     main(args.input_data, args.interval_file, args.output_dir)

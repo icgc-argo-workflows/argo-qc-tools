@@ -50,7 +50,7 @@ params.container = ""
 // tool specific params go here, add / change as needed
 params.input_file = "input/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.sub.bam"
 params.interval_file = "input/LTR_intervals.chr22.bed"
-params.expected_output = "expected/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.precalculated_coverage_mean.qc.tgz"
+params.expected_output = "expected/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.precalculated_coverage_mean.tgz"
 
 include { coverageMeanTarget } from '../main'
 
