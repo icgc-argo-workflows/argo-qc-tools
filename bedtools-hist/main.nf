@@ -64,7 +64,7 @@ process coverageHistogram {
     path ref_genome
 
   output:
-    path "${input_data}.coverage_hist.qc.tgz", emit: qc_tar
+    path "${input_data}.coverage_hist.tgz", emit: qc_tar
 
   script:
     """
