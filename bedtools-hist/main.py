@@ -63,18 +63,26 @@ def get_tool_version():
 
 
 def prep_qc_metrics(coverage_hist, tool_ver):
+    max_coverage = 0
+    chromosomes = {}
 
-    json_rows = []
     with open(coverage_hist, 'r') as f:
         for row in f:
             cols = row.strip().split('\t')
-            interval = ",".join(cols[0:3])
-            json_rows.append({interval: cols[-1]})
+            if cols[0].startswith("all"):
+                continue
+            current_coverage = int(cols[3])
+            if current_coverage != 0:
+                chromosomes[cols[0]] = 1
+                max_coverage = current_coverage if max_coverage < current_coverage else max_coverage
+
+    json_rows = [{"chromosomes_covered": len(chromosomes.keys())},
+                 {"max_coverage": max_coverage}]
 
     qc_metrics = {
         'tool': {
             'name': 'Bedtools:coverage_hist',
-            'version': tool_ver
+            'version': tool_ver.strip('v')
         },
         'metrics': json_rows
     }
@@ -157,7 +165,7 @@ if __name__ == '__main__':
         sys.exit('Error: no valid genome specified!')
     if not os.path.isdir(args.output_dir):
         sys.exit('Error: specified output dir %s does not exist or is not accessible!' % args.output_dir)
-    if not args.input_data.endswith('.bed') and not args.input_data.endswith('.bam') and not args.input_data.endswith('.gff'):
-        sys.exit('Error: Invalid format for input file, need .bed, .gff or .bam!' % args.input_data)
+    if not args.input_data.endswith('.bed') and not args.input_data.endswith('.bam') and not args.input_data.endswith('.gff') and not args.input_data.endswith('.cram'):
+        sys.exit('Error: Invalid format for input file, need .bed, .gff, .cram or .bam!' % args.input_data)
 
     main(args.input_data, args.ref_genome, args.output_dir)
