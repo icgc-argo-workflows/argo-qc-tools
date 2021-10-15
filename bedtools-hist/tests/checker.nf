@@ -48,7 +48,7 @@ params.container_version = ""
 params.container = ""
 
 // tool specific params go here, add / change as needed
-params.input_file = "input/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.sub.bam"
+params.input_data = "input/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.sub.bam"
 params.ref_genome = "input/hg38.bed"
 params.expected_output = "expected/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.precalculated_coverage_hist.tgz"
 
@@ -76,13 +76,13 @@ process file_smart_diff {
 
 workflow checker {
   take:
-    input_file
+    input_data
     ref_genome
     expected_output
 
   main:
     coverageHistogram(
-      input_file,
+      input_data,
       ref_genome
     )
 
@@ -95,7 +95,7 @@ workflow checker {
 
 workflow {
   checker(
-    file(params.input_file),
+    file(params.input_data),
     file(params.ref_genome),
     file(params.expected_output)
   )
