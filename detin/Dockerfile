@@ -1,6 +1,6 @@
 FROM continuumio/miniconda3:4.9.2
 
-LABEL org.opencontainers.image.source https://github.com/icgc-argo-qc-wg/argo-qc-tools
+LABEL org.opencontainers.image.source https://github.com/icgc-argo-workflows/argo-qc-tools
 
 # add ps (required by nextflow)
 RUN apt-get --allow-releaseinfo-change update  && \
