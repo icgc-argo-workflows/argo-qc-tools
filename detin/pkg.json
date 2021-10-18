@@ -1,0 +1,36 @@
+{
+    "name": "detin",
+    "version": "0.1.0",
+    "description": "Implementation of deTiN",
+    "main": "main.nf",
+    "deprecated": false,
+    "keywords": [
+        "bioinformatics",
+        "qc"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/icgc-argo-qc-wg/argo-qc-tools.git"
+    },
+    "container": {
+        "registries": [
+            {
+                "registry": "ghcr.io",
+                "type": "docker",
+                "org": "icgc-argo-qc-wg",
+                "default": true
+            }
+        ]
+    },
+    "dependencies": [],
+    "devDependencies": [],
+    "contributors": [
+        {
+            "name": "Raquel Manzano",
+            "email": "rm889@cam.ac.uk"
+        }
+    ],
+    "license": "MIT",
+    "bugReport": "https://github.com/icgc-argo-qc-wg/argo-qc-tools/issues",
+    "homepage": "https://github.com/icgc-argo-qc-wg/argo-qc-tools#readme"
+}
