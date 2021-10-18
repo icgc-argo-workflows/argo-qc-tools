@@ -1,0 +1,8 @@
+{
+    "input_data": "input/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.sub.bam",
+    "interval_file": "input/LTR_intervals.chr22.bed",
+    "expected_output": "expected/SWID_SQ_REPSYM_REPSYM_NoIndex_L001_001.chr22.precalculated_coverage_mean.tgz",
+    "publish_dir": "outdir",
+    "cpus": 1,
+    "mem": 4
+}

@@ -1,0 +1,7 @@
+{
+    "seq": "input/C0HVY.2_r1.fq.gz",
+    "expected_output": "expected/expected.C0HVY.2_r1.fq.gz.fastqc.tgz",
+    "publish_dir": "outdir",
+    "cpus": 1,
+    "mem": 0.5
+}

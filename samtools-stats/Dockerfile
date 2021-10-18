@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 
-LABEL org.opencontainers.image.source https://github.com/icgc-argo-qc-wg/argo-qc-tools
+LABEL org.opencontainers.image.source https://github.com/icgc-argo-workflows/argo-qc-tools
 
 ENV DEBIAN_FRONTEND noninteractive
 

@@ -1,0 +1,36 @@
+{
+    "name": "bedtools-mean",
+    "version": "2.30.0",
+    "description": "bedtools",
+    "main": "main.nf",
+    "deprecated": false,
+    "keywords": [
+        "qc",
+        "metrics"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/icgc-argo-workflows/argo-qc-tools.git"
+    },
+    "container": {
+        "registries": [
+            {
+                "registry": "ghcr.io",
+                "type": "docker",
+                "org": "icgc-argo-workflows",
+                "default": true
+            }
+        ]
+    },
+    "dependencies": [],
+    "devDependencies": [],
+    "contributors": [
+        {
+            "name": "Peter Ruzanov",
+            "email": "pruzanov@oicr.on.ca"
+        }
+    ],
+    "license": "MIT",
+    "bugReport": "https://github.com/icgc-argo-workflows/argo-qc-tools/issues",
+    "homepage": "https://github.com/icgc-argo-workflows/argo-qc-tools#readme"
+}
