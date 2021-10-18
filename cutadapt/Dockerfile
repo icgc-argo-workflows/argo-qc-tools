@@ -20,7 +20,7 @@ RUN apt update && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
-LABEL org.opencontainers.image.source https://github.com/icgc-argo-qc-wg/argo-qc-tools
+LABEL org.opencontainers.image.source https://github.com/icgc-argo-workflows/argo-qc-tools
 
 ENV PATH="/tools:${PATH}"
 

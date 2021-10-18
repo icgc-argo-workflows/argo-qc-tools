@@ -29,7 +29,7 @@
 nextflow.enable.dsl = 2
 version = '3.4.0'  // package version
 container = [
-    'ghcr.io': 'ghcr.io/icgc-argo-qc-wg/argo-qc-tools.cutadapt'
+    'ghcr.io': 'ghcr.io/icgc-argo-workflows/argo-qc-tools.cutadapt'
 ]
 default_container_registry = 'ghcr.io'
 /********************************************************************/
