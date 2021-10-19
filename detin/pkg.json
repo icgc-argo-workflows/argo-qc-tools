@@ -1,6 +1,6 @@
 {
     "name": "detin",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "Implementation of deTiN",
     "main": "main.nf",
     "deprecated": false,
