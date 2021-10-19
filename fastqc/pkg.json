@@ -1,6 +1,6 @@
 {
     "name": "fastqc",
-    "version": "0.1.0",
+    "version": "0.1.0.1",
     "description": "FastQC tool",
     "main": "main.nf",
     "deprecated": false,
