@@ -29,10 +29,10 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '2.30.0'  // package version
+version = '2.30.0.1'
 
 container = [
-    'ghcr.io': 'ghcr.io/icgc-argo-qc-wg/argo-qc-tools.bedtools-hist'
+    'ghcr.io': 'ghcr.io/icgc-argo-workflows/argo-qc-tools.bedtools-hist'
 ]
 default_container_registry = 'ghcr.io'
 /********************************************************************/

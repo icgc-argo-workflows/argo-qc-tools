@@ -29,10 +29,10 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '3.4.0'  // package version
+version = '0.1.1'  // package version, changed from 3.4.0 so it doesnt match cutadapt
 
 container = [
-    'ghcr.io': 'ghcr.io/icgc-argo-qc-wg/argo-qc-tools.cutadapt'
+    'ghcr.io': 'ghcr.io/icgc-argo-workflows/argo-qc-tools.cutadapt'
 ]
 default_container_registry = 'ghcr.io'
 /********************************************************************/
@@ -90,7 +90,7 @@ process cutadapt {
 
 
 // this provides an entry point for this main script, so it can be run directly without clone the repo
-// using this command: nextflow run icgc-argo-qc-wg/argo-qc-tools/cutadapt/main.nf -r cutadapt.v3.4.0 --params-file
+// using this command: nextflow run icgc-argo-workflows/argo-qc-tools/cutadapt/main.nf -r cutadapt.v3.4.0 --params-file
 workflow {
   cutadapt(
     file(params.input_R1),

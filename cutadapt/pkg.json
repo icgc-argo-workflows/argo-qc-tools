@@ -1,6 +1,6 @@
 {
     "name": "cutadapt",
-    "version": "3.4.0",
+    "version": "0.1.1",
     "description": "CutAdapt tool",
     "main": "main.nf",
     "deprecated": false,
@@ -14,14 +14,14 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/icgc-argo-qc-wg/argo-qc-tools.git"
+        "url": "https://github.com/icgc-argo-workflows/argo-qc-tools.git"
     },
     "container": {
         "registries": [
             {
                 "registry": "ghcr.io",
                 "type": "docker",
-                "org": "icgc-argo-qc-wg",
+                "org": "icgc-argo-workflows",
                 "default": true
             }
         ]
@@ -35,6 +35,6 @@
         }
     ],
     "license": "MIT",
-    "bugReport": "https://github.com/icgc-argo-qc-wg/argo-qc-tools/issues",
-    "homepage": "https://github.com/icgc-argo-qc-wg/argo-qc-tools#readme"
+    "bugReport": "https://github.com/icgc-argo-workflows/argo-qc-tools/issues",
+    "homepage": "https://github.com/icgc-argo-workflows/argo-qc-tools#readme"
 }
