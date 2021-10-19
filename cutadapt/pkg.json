@@ -1,6 +1,6 @@
 {
     "name": "cutadapt",
-    "version": "3.4.0",
+    "version": "0.1.1",
     "description": "CutAdapt tool",
     "main": "main.nf",
     "deprecated": false,
