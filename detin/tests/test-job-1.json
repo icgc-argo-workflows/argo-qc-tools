@@ -1,0 +1,14 @@
+{
+    "mutation_data_path": "input/HCC_10_90.call_stats.pon_removed.txt",
+    "cn_data_path": "input/HCC-1143_100_T-sim-final.acs.seg",
+    "tumor_het_data": "input/HCC_10_90.tumor.hets.tsv",
+    "normal_het_data": "input/HCC_10_90.normal.hets.tsv",
+    "exac_data_path": "input/exac.pickle_high_af",
+    "indel_data_path": "input/MuTect2.call_stats.txt",
+    "indel_data_type": "MuTect2",
+    "output_name": "10_percent_TiN_simulation",
+    "expected_file": "expected/expected_output_cat.txt",
+    "publish_dir": "outdir",
+    "cpus": 1,
+    "mem": 0.5
+}

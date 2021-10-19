@@ -37,7 +37,7 @@ nextflow.enable.dsl = 2
 version = '0.2.0.1'
 
 container = [
-    'ghcr.io': 'ghcr.io/icgc-argo-qc-wg/argo-qc-tools.picard-collect-hs-metrics'
+    'ghcr.io': 'ghcr.io/icgc-argo-workflows/argo-qc-tools.picard-collect-hs-metrics'
 ]
 default_container_registry = 'ghcr.io'
 /********************************************************************/
