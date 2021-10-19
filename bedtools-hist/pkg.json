@@ -1,6 +1,6 @@
 {
     "name": "bedtools-hist",
-    "version": "2.30.0",
+    "version": "2.30.0.1",
     "description": "bedtools",
     "main": "main.nf",
     "deprecated": false,
