@@ -75,7 +75,6 @@ process picardCollectRnaSeqMetrics {
 
   script:
     // add and initialize variables here as needed
-    arg_strand = strand == '' ? "" : " -s ${strand}"
     arg_ignore_seq = ignore_seq.name.startsWith('NO_FILE') ? "" : "-x ${ignore_seq}"
     arg_ribosomal_interval_list = ribosomal_interval_list.name.startsWith('NO_FILE') ? "" : "-b ${ribosomal_interval_list}"
 
@@ -84,7 +83,7 @@ process picardCollectRnaSeqMetrics {
       -m ${(int) (params.mem * 1000)} \
       -i ${aligned_seq} \
       -r ${ref_flat} \
-      ${arg_strand} \
+      -s ${strand} \
       ${arg_ignore_seq} \
       ${arg_ribosomal_interval_list}
     """
