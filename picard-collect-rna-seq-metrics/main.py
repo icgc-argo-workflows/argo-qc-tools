@@ -160,7 +160,7 @@ def main():
                         help='Input SAM or BAM file.', required=True)
     parser.add_argument('-r', '--ref_flat', dest='ref_flat', type=str, required=True,
                         help='Gene annotations in refFlat form.')
-    parser.add_argument('-s', '--strand', dest='strand', type=str, required=True,
+    parser.add_argument('-s', '--strand', dest='strand', type=str, required=True, choices=['First_Stranded', 'Second_Stranded', 'Unstranded'],
                         help='For strand-specific library prep.')
     parser.add_argument('-x', '--ignore_seq', dest='ignore_seq', type=str,
                         help='If a read maps to a sequence specified with this option, all the bases in the read are counted as ignored bases. These reads are not counted as.')
@@ -180,8 +180,6 @@ def main():
       strand = 'FIRST_READ_TRANSCRIPTION_STRAND'
     elif args.strand == 'Unstranded':
       strand = 'NONE'
-    elif args.strand == 'Not Applicable':
-      strand = 'FIRST_READ_TRANSCRIPTION_STRAND'
 
 
     jvm_Xmx = f'-Xmx{args.jvm_mem}M'
