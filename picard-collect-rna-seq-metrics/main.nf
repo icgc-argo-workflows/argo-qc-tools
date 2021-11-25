@@ -83,7 +83,7 @@ process picardCollectRnaSeqMetrics {
       -m ${(int) (params.mem * 1000)} \
       -i ${aligned_seq} \
       -r ${ref_flat} \
-      -s ${strand} \
+      -s "${strand}" \
       ${arg_ignore_seq} \
       ${arg_ribosomal_interval_list}
     """
