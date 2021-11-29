@@ -160,12 +160,15 @@ def main():
                         help='Input SAM or BAM file.', required=True)
     parser.add_argument('-r', '--ref_flat', dest='ref_flat', type=str, required=True,
                         help='Gene annotations in refFlat form.')
-    parser.add_argument('-s', '--strand', dest='strand', type=str, required=True, choices=['First_Stranded', 'Second_Stranded', 'Unstranded'],
+    parser.add_argument('-s', '--strand', dest='strand', type=str, default='Unstranded', choices=['First_Stranded', 'Second_Stranded', 'Unstranded'],
                         help='For strand-specific library prep.')
     parser.add_argument('-x', '--ignore_seq', dest='ignore_seq', type=str,
                         help='If a read maps to a sequence specified with this option, all the bases in the read are counted as ignored bases. These reads are not counted as.')
     parser.add_argument('-b', '--ribosomal_interval_list', dest='ribosomal_interval_list', type=str,
                         help='Location of rRNA sequences in genome in interval_list format.')
+    parser.add_argument('-t', '--tempdir', dest='tempdir', type=str, default=".",
+                        help='Specify directory for temporary files')
+
     args = parser.parse_args()
 
     if not os.path.isfile(args.aligned_seq):
@@ -198,7 +201,8 @@ def main():
         '--OUTPUT', output_dir+'/rna_metrics.txt',
         '--CHART_OUTPUT', output_dir+'/rna_metrics.pdf',
         '--REF_FLAT', args.ref_flat,
-        '--STRAND_SPECIFICITY', strand
+        '--STRAND_SPECIFICITY', strand,
+        '--TMP_DIR', args.tempdir
     ]
 
     if args.ribosomal_interval_list:

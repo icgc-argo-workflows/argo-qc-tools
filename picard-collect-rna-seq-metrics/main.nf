@@ -54,6 +54,7 @@ params.ref_flat = "NO_FILE2"
 params.strand = ""
 params.ignore_seq = "NO_FILE3"
 params.ribosomal_interval_list = "NO_FILE4"
+params.tempdir = "NO_DIR"
 
 
 process picardCollectRnaSeqMetrics {
@@ -69,21 +70,25 @@ process picardCollectRnaSeqMetrics {
     path ignore_seq
     path ribosomal_interval_list
     val strand
+    val tempdir
 
   output:  // output, make update as needed
     path "${aligned_seq}.collectrnaseqmetrics.tgz", emit: qc_tar
 
   script:
     // add and initialize variables here as needed
+    arg_strand = strand == '' ? "" : " -s ${strand}"
     arg_ignore_seq = ignore_seq.name.startsWith('NO_FILE') ? "" : "-x ${ignore_seq}"
     arg_ribosomal_interval_list = ribosomal_interval_list.name.startsWith('NO_FILE') ? "" : "-b ${ribosomal_interval_list}"
+    arg_tempdir = tempdir != 'NO_DIR' ? "-t ${tempdir}" : ""
 
     """
     main.py \
       -m ${(int) (params.mem * 1000)} \
       -i ${aligned_seq} \
       -r ${ref_flat} \
-      -s "${strand}" \
+      ${arg_strand} \
+      ${arg_tempdir} \
       ${arg_ignore_seq} \
       ${arg_ribosomal_interval_list}
     """
@@ -98,6 +103,7 @@ workflow {
     file(params.ref_flat),
     file(params.ignore_seq),
     file(params.ribosomal_interval_list),
-    params.strand
+    params.strand,
+    params.tempdir
   )
 }
