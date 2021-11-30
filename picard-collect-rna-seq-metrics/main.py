@@ -166,7 +166,7 @@ def main():
                         help='If a read maps to a sequence specified with this option, all the bases in the read are counted as ignored bases. These reads are not counted as.')
     parser.add_argument('-b', '--ribosomal_interval_list', dest='ribosomal_interval_list', type=str,
                         help='Location of rRNA sequences in genome in interval_list format.')
-    parser.add_argument('-t', '--tempdir', dest='tempdir', type=str, default=".",
+    parser.add_argument('-t', '--tempdir', dest='tempdir', type=str,
                         help='Specify directory for temporary files')
 
     args = parser.parse_args()
@@ -201,9 +201,11 @@ def main():
         '--OUTPUT', output_dir+'/rna_metrics.txt',
         '--CHART_OUTPUT', output_dir+'/rna_metrics.pdf',
         '--REF_FLAT', args.ref_flat,
-        '--STRAND_SPECIFICITY', strand,
-        '--TMP_DIR', args.tempdir
+        '--STRAND_SPECIFICITY', strand
     ]
+
+    if args.tempdir:
+      tool_args += ['--TMP_DIR', args.tempdir]
 
     if args.ribosomal_interval_list:
       tool_args += ['--RIBOSOMAL_INTERVALS', args.ribosomal_interval_list]
