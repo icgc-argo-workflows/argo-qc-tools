@@ -34,7 +34,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.0.1'
+version = '0.2.0'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo-workflows/argo-qc-tools.picard-collect-rna-seq-metrics'
@@ -51,6 +51,7 @@ params.container = ""
 params.aligned_seq = "NO_FILE1"
 params.ref_flat = "NO_FILE2"
 params.strand = ""
+params.tempdir = "NO_DIR"
 params.ignore_seq = "NO_FILE3"
 params.ribosomal_interval_list = "NO_FILE4"
 params.expected_output = ""
@@ -101,6 +102,7 @@ workflow checker {
     ignore_seq
     ribosomal_interval_list
     strand
+    tempdir
     expected_output
 
   main:
@@ -109,7 +111,8 @@ workflow checker {
       ref_flat,
       ignore_seq,
       ribosomal_interval_list,
-      strand
+      strand,
+      tempdir
     )
 
     file_smart_diff(
@@ -126,6 +129,7 @@ workflow {
     file(params.ignore_seq),
     file(params.ribosomal_interval_list),
     params.strand,
+    params.tempdir,
     file(params.expected_output)
   )
 }
