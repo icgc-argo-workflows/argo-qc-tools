@@ -4,7 +4,7 @@
     "expected_output": "expected/expected.sample_01_L1_Aligned.out.bam.collectrnaseqmetrics.tgz",
     "tempdir": "/tmp",
     "publish_dir": "outdir",
-    "strand": "First_Stranded",
+    "strand": "FIRST_READ_SENSE_STRAND",
     "cpus": 1,
     "mem": 0.5
 }
