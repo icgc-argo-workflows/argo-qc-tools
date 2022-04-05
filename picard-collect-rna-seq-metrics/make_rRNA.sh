@@ -34,11 +34,11 @@ perl -lane 'print "\@SQ\tSN:$F[0]\tLN:$F[1]\tAS:GRCh38"' $chrom_sizes | \
 > $rRNA
 
 # Intervals for rRNA transcripts.
-grep 'gene_type "rRNA_pseudogene"' $genes | \
-    awk '$3 == "gene"' | \
+grep 'gene_type "rRNA"' $genes | \
+    awk '$3 == "transcript"' | \
     cut -f1,4,5,7,9 | \
     perl -lane '
-        /gene_id "([^"]+)"/ or die "no gene_id on $.";
+        /transcript_id "([^"]+)"/ or die "no transcript_id on $.";
         print join "\t", (@F[0,1,2,3], $1)
     ' | \
     sort -k1V -k2n -k3n \
