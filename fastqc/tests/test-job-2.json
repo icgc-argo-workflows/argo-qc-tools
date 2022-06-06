@@ -1,6 +1,9 @@
 {
-    "seq": "input/C0HVY.2_r1.fq.gz",
-    "expected_output": "expected/expected.C0HVY.2_r1.fq.gz.fastqc.tgz",
+    "seq": [
+      "input/C0HVY.2_r1.fq.gz",
+      "input/C0HVY.2_r2.fq.gz"
+    ],
+    "expected_output": "expected/expected.test-job-2.fastqc.tgz",
     "publish_dir": "outdir",
     "cpus": 1,
     "mem": 0.5

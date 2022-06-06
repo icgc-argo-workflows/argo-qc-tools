@@ -69,9 +69,13 @@ process file_smart_diff {
     mkdir output expected
 
     tar xzf ${output_file} -C output
-    unzip output/*.zip -d output
+    for f in `ls output/*.zip`; do
+      unzip \$f -d output
+    done
     tar xzf ${expected_file} -C expected
-    unzip expected/*.zip -d expected
+    for f in `ls expected/*.zip`; do
+      unzip \$f -d expected
+    done
     
     cd output
     # compare all types of files
@@ -100,20 +104,25 @@ workflow checker {
     expected_output
 
   main:
+    Channel.fromPath(seq).map { file ->
+        def key = file.name.toString().tokenize('_').get(0)
+        return tuple(key, file)
+     }
+     .groupTuple()
+     .set{ groups_ch }
     fastqc(
-      seq
+      groups_ch
     )
-
     file_smart_diff(
-      fastqc.out.qc_tar,
-      expected_output
+      fastqc.out.fastqc_tar,
+      file(expected_output)
     )
 }
 
 
 workflow {
   checker(
-    file(params.seq),
-    file(params.expected_output)
+    params.seq,
+    params.expected_output
   )
 }
