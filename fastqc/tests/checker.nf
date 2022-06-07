@@ -76,7 +76,7 @@ process file_smart_diff {
     for f in `ls expected/*.zip`; do
       unzip \$f -d expected
     done
-    
+
     cd output
     # compare all types of files
     for f in `find . -type f`; do 
@@ -85,8 +85,8 @@ process file_smart_diff {
         echo "Test FAILED, found unexpected file: \$f in the output tarball" && exit 1
       fi
       echo diff \$f ../expected/\$f
-      EFFECTIVE_DIFF=`diff <( cat \$f | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' ) \
-                           <( cat ../expected/\$f | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' ) \
+      EFFECTIVE_DIFF=`diff <( cat \$f | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' | sort ) \
+                           <( cat ../expected/\$f | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' | sort ) \
                            | egrep '<|>' || true`
       if [ ! -z "\$EFFECTIVE_DIFF" ]
       then
