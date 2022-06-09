@@ -74,7 +74,7 @@ process file_smart_diff {
 
     cd output
     # compare all types of files
-    for f in `find . -type f`; do 
+    for f in `find . -type f ! -name '*.html'`; do 
       if [ ! -f "../expected/\$f" ]
       then
         echo "Test FAILED, found unexpected file: \$f in the output tarball" && exit 1

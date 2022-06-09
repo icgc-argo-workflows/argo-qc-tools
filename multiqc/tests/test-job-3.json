@@ -1,7 +1,14 @@
 {
     "input_file": [
-      "input/*.cutadapt.log",
-      "input/*fastqc.zip"
+      "input/C0HVY_2.c18a81968b79604ef549f7d05904f040.cutadapt.log",
+      "input/D0RE2_1.b4bfaf68165cc125a7d8f64de910e4ab.cutadapt.log",
+      "input/D0RH0_2.1243f8e870cc9d8ec77338f3baf19484.cutadapt.log",
+      "input/TEST-PRO.DO1111111111.SA3333333333.C0HVY.2.2adf885152f5f6d41d5193bd01164372_R1_fastqc.zip",
+      "input/TEST-PRO.DO1111111111.SA3333333333.C0HVY.2.2adf885152f5f6d41d5193bd01164372_R2_fastqc.zip",
+      "input/TEST-PRO.DO1111111111.SA3333333333.D0RE2.1.d2ca4aa5eab62285dfc4c5afdb424064_R1_fastqc.zip",
+      "input/TEST-PRO.DO1111111111.SA3333333333.D0RE2.1.d2ca4aa5eab62285dfc4c5afdb424064_R2_fastqc.zip",
+      "input/TEST-PRO.DO1111111111.SA3333333333.D0RH0.2.88d85adb6e030fa000eb07de26bc2006_R1_fastqc.zip",
+      "input/TEST-PRO.DO1111111111.SA3333333333.D0RH0.2.88d85adb6e030fa000eb07de26bc2006_R2_fastqc.zip"
     ],
     "expected_output": "expected/expected.test-job-3.multiqc.tgz",
     "publish_dir": "outdir",
