@@ -66,18 +66,29 @@ process file_smart_diff {
 
   script:
     """
-    # Note: this is only for demo purpose, please write your own 'diff' according to your own needs.
-    # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
-    # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
+    mkdir output expected
+    
+    tar xzf ${output_file} -C output
 
-    cat ${output_file[0]} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
+    tar xzf ${expected_file} -C expected
 
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
-
-    diff normalized_output normalized_expected \
-      && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
+    cd output
+    # compare all types of files
+    for f in `find . -type f`; do 
+      if [ ! -f "../expected/\$f" ]
+      then
+        echo "Test FAILED, found unexpected file: \$f in the output tarball" && exit 1
+      fi
+      echo diff \$f ../expected/\$f
+      EFFECTIVE_DIFF=`diff <( cat \$f | grep -v "generated on" |grep -v "mqc_analysis_path" | sort ) \
+                           <( cat ../expected/\$f | grep -v "generated on" |grep -v "mqc_analysis_path" | sort ) \
+                           | egrep '<|>' || true`
+      if [ ! -z "\$EFFECTIVE_DIFF" ]
+      then
+        echo -e "Test FAILED, output file \$f mismatch:\n\$EFFECTIVE_DIFF" && exit 1
+      fi
+    done
+    echo "All files match, test PASSED" && exit 0
     """
 }
 
@@ -89,19 +100,19 @@ workflow checker {
 
   main:
     multiqc(
-      input_file
+      Channel.fromPath(input_file).collect()
     )
 
     file_smart_diff(
-      multiqc.out.output_file,
-      expected_output
+      multiqc.out.multiqc_tar,
+      file(expected_output)
     )
 }
 
 
 workflow {
   checker(
-    file(params.input_file),
-    file(params.expected_output)
+    params.input_file,
+    params.expected_output
   )
 }

@@ -1,6 +1,7 @@
 {
-    "input_file": "input/test_rg_3.bam",
-    "expected_output": "expected/expected.test_rg_3.bam",
+    "input_file": "input/C0HVY_2.c18a81968b79604ef549f7d05904f040.cutadapt.log",
+    "data_format": "tsv",
+    "expected_output": "expected/expected.test-job-1.multiqc.tgz",
     "publish_dir": "outdir",
     "cpus": 1,
     "mem": 0.5

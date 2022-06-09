@@ -1,4 +1,10 @@
-FROM czentye/matplotlib-minimal:3.1.2
+############################################################
+# Dockerfile to build Multiqc container images
+# Inspiration taken from ghcr.io/ewels/multiqc:latest
+# https://github.com/ewels/MultiQC/blob/master/Dockerfile
+############################################################
+
+FROM ghcr.io/ewels/multiqc:latest
 
 LABEL org.opencontainers.image.source https://github.com/icgc-argo-workflows/argo-qc-tools
 

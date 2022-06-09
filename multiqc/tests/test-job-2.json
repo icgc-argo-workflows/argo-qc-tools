@@ -1,8 +1,10 @@
 {
-    "input_file": "input/test_rg_3.bam",
-    "expected_output": "expected/expected.test_rg_3.bam",
+    "input_file": [
+      "input/C0HVY_2.c18a81968b79604ef549f7d05904f040.cutadapt.log",
+      "input/TEST-PRO.DO1111111111.SA3333333333.C0HVY.2.2adf885152f5f6d41d5193bd01164372_R1_fastqc.zip"
+    ],
+    "expected_output": "expected/expected.test-job-2.multiqc.tgz",
     "publish_dir": "outdir",
-    "container_registry": "ghcr.io",
     "cpus": 1,
     "mem": 0.5
 }

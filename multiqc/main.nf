@@ -50,12 +50,13 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
 params.input_file = ""
-params.output_pattern = "*"  // output file name pattern
+params.data_format = ""
+params.extra_options=""
 
 
 process multiqc {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir ? true : false
 
   cpus params.cpus
   memory "${params.mem} GB"
@@ -64,17 +65,20 @@ process multiqc {
     path input_file
 
   output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output_file
+    path "multiqc.tgz", emit: multiqc_tar
+    path "output_dir/multiqc_report.html", emit: multiqc_html
+    path "output_dir/multiqc_data/multiqc_*", emit: multiqc_data
 
   script:
     // add and initialize variables here as needed
+    arg_data_format = params.data_format != "" ? "-k ${params.data_format}" : ""
 
     """
     mkdir -p output_dir
 
     main.py \
       -i ${input_file} \
-      -o output_dir
+      -o output_dir ${arg_data_format} ${params.extra_options}
 
     """
 }
@@ -84,6 +88,6 @@ process multiqc {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   multiqc(
-    file(params.input_file)
+    Channel.fromPath(params.input_file).collect()
   )
 }
