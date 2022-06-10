@@ -7,7 +7,7 @@
 # Set the base image to Ubuntu
 FROM ubuntu:20.04
 
-ARG PACKAGE_VERSION=2.10
+ARG PACKAGE_VERSION=4.0
 ARG BUILD_PACKAGES="build-essential"
 ARG DEBIAN_FRONTEND=noninteractive
 

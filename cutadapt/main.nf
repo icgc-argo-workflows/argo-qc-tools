@@ -29,7 +29,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.2.0'
+version = '0.2.0'  // package version, changed from 3.4.0 so it doesnt match cutadapt
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo-workflows/argo-qc-tools.cutadapt'
@@ -49,9 +49,9 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 
 // tool specific params go here, add / change as needed
+params.read_group_id = ""
 params.input_R1=""
-params.input_R2=""
-params.output_pattern = "*.cutadapt.log.qc.tgz"  // output file name pattern
+params.input_R2="No_File"
 params.read1_adapter="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"
 params.read2_adapter="AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"
 params.min_length=1
@@ -60,31 +60,35 @@ params.extra_options=""
 
 process cutadapt {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir ? true : false
 
   cpus params.cpus
   memory "${params.mem} GB"
 
   input:
-    path input_R1
-    path input_R2
+    tuple val(read_group_id), path(input_R1), path(input_R2)
 
   output:
-    path "output_dir/${params.output_pattern}", emit: output_tgz
+    path "output_dir/*.cutadapt.tgz", emit: cutadapt_tar
+    path "output_dir/*.cutadapt.log", emit: cutadapt_log
+    path "output_dir/*{fq,fastq,fq.gz,fastq.gz}", emit: cutadapt_results
 
   script:
     // add and initialize variables here as needed
+
+    arg_input_R2 = input_R2.name != 'No_File' ? "-2 ${input_R2}" : ""
 
     """
     mkdir -p output_dir
 
     main.py \
-      -1 ${input_R1} -2 ${input_R2} \
+      -1 ${input_R1} \
+      -r ${read_group_id} \
       -o output_dir \
       -a ${params.read1_adapter} \
       -A ${params.read2_adapter} \
       -m ${params.min_length} \
-      -q ${params.qual_cutoff} ${params.extra_options}
+      -q ${params.qual_cutoff} ${arg_input_R2} ${params.extra_options}
     """
 }
 
@@ -93,7 +97,6 @@ process cutadapt {
 // using this command: nextflow run icgc-argo-workflows/argo-qc-tools/cutadapt/main.nf -r cutadapt.v3.4.0 --params-file
 workflow {
   cutadapt(
-    file(params.input_R1),
-    file(params.input_R2)
+    tuple(params.read_group_id, file(params.input_R1), file(params.input_R2))
   )
 }
