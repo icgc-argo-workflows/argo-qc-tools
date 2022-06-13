@@ -4,7 +4,7 @@
 # https://github.com/ewels/MultiQC/blob/master/Dockerfile
 ############################################################
 
-FROM ghcr.io/ewels/multiqc:latest
+FROM ghcr.io/ewels/multiqc:v1.12
 
 LABEL org.opencontainers.image.source https://github.com/icgc-argo-workflows/argo-qc-tools
 
