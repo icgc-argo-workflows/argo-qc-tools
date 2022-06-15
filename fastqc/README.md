@@ -1,4 +1,4 @@
-# Nextflow Package fastqc
+# Nextflow Package `fastqc`
 A simple fastqc wrapper written in nextflow. The outputs include fastqc output files along with a `qc_metrics.json` which contains some of the important metrics. 
 
 For a bunch of fastq/bam files (Illumina PE or SE), run it with:
