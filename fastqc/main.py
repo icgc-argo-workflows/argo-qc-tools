@@ -75,16 +75,33 @@ def prep_qc_metrics(name, output_dir, tool_ver):
 
     for fastqc_zip in sorted(glob(os.path.join(output_dir, "*_fastqc.zip"))):
       metric = {"Read Group ID": name}
-      fastqc_data = os.path.join(os.path.basename(fastqc_zip).rstrip('.zip'), "summary.txt")
+      fastqc_summary = os.path.join(os.path.basename(fastqc_zip).rstrip('.zip'), "summary.txt")
+      fastqc_data = os.path.join(os.path.basename(fastqc_zip).rstrip('.zip'), "fastqc_data.txt")
       with ZipFile(fastqc_zip) as myzip:
-        with myzip.open(fastqc_data) as myfile:
-          with io.TextIOWrapper(myfile, encoding="utf-8") as mytext:
+        with myzip.open(fastqc_summary) as sumfile:
+          with io.TextIOWrapper(sumfile, encoding="utf-8") as sumtext:
             for line in mytext:
               cols = line.rstrip().split('\t')
               metric.update({
                 cols[1]: cols[0]
               })
             metric.update({"File Name": cols[2]})
+        # TODO: test this chunk
+        with myzip.open(fastqc_data) as datafile:
+          with io.TextIOWrapper(datafile, encoding="utf-8") as datatext:
+            for line in datatext:
+               if line.startswith("Total Sequences"):
+                 metric.update({"TotalSequences": line.strip().split("\t")[1]})
+               elif l.startswith("Sequences flagged as poor quality"):
+                 metric.update({"PoorSequences": line.strip().split("\t")[1]})
+               elif l.startswith("Sequence length"):
+                 metric.update({"AvSequenceLength": line.strip().split("\t")[1]})
+               elif l.startswith("#Total Deduplicated Percentage"):
+                 metric.update({"DuplicatedPercentage": line.strip().split("\t")[1]})
+               elif l.startswith("%GC"):
+                 metric.update({"GC": line.strip().split("\t")[1]})
+            metric.update({"File Name": cols[2]})
+        # End of chunk
       qc_metrics['metrics'].append(metric)
 
     qc_metrics_file = 'qc_metrics.json'
