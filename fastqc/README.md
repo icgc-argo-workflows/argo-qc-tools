@@ -1,10 +1,16 @@
 # Nextflow Package `fastqc`
-A simple fastqc wrapper written in nextflow. The outputs include fastqc output files along with a `qc_metrics.json` which contains some of the important metrics. 
+A simple `fastqc` wrapper written in `nextflow`. The outputs include fastqc output files along with a `qc_metrics.json` which contains some of the important metrics. 
 
 For a bunch of fastq/bam files (Illumina PE or SE), run it with:
 ```
 nextflow run main.nf --seq 'path/to/bam_or_fastq'
 ```
+
+## Package development
+
+The initial version of this package was created by the WorkFlow Package Manager CLI tool, please refer to
+the [documentation](https://wfpm.readthedocs.io) for details on the development procedure including
+versioning, updating, CI testing and releasing.
 
 ## Inputs
 ### Required
@@ -43,7 +49,6 @@ nextflow run main.nf --seq 'path/to/bam_or_fastq'
 }
 
 ```
-
 
 ## Usage
 ### Run the package directly
