@@ -3,7 +3,7 @@ A simple `fastqc` wrapper written in `nextflow`. The outputs include fastqc outp
 
 For a bunch of fastq/bam files (Illumina PE or SE), run it with:
 ```
-nextflow run main.nf --seq 'path/to/bam_or_fastq'
+nextflow run main.nf --seq 'path/to/bam_or_fastq_files'
 ```
 
 ## Package development
