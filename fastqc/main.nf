@@ -29,7 +29,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.0.1'
+version = '0.2.0'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo-workflows/argo-qc-tools.fastqc'
@@ -51,19 +51,20 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 // tool specific parmas go here, add / change as needed
 params.seq = ""
 
-
 process fastqc {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir ? true : false
 
   cpus params.cpus
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    path seq
+    tuple val(name), path(seq)
 
   output:  // output, make update as needed
-    path "${seq}.fastqc.tgz", emit: qc_tar
+    path "*fastqc.tgz", emit: fastqc_tar
+    path "output/*_fastqc.{zip,html}", emit: fastqc_results
+
 
   script:
     // add and initialize variables here as needed
@@ -71,6 +72,7 @@ process fastqc {
     """
     main.py \
       -s ${seq} \
+      -n ${name} \
       -t ${params.cpus}
 
     """
@@ -80,7 +82,16 @@ process fastqc {
 // this provides an entry point for this main script, so it can be run directly without clone the repo
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
+  Channel
+    .fromPath(params.seq)
+    .map { file ->
+        def key = file.name.toString().tokenize('_').get(0)
+        return tuple(key, file)
+     }
+    .groupTuple()
+    .view()
+    .set{ groups_ch }
   fastqc(
-    file(params.seq)
+    groups_ch
   )
 }
