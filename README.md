@@ -11,3 +11,4 @@
 | picard-collect-hs-metrics  | Picard:CollectHsMetrics | 2.25.7 |
 | bedtools-hist  | Bedtools:coverage_hist | 2.30.0 |
 | bedtools-mean  | Bedtools:coverage_mean | 2.30.0 |
+| multiqc  | MultiQC | 1.12 |
