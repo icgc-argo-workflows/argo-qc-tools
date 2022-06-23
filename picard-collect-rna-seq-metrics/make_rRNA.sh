@@ -29,8 +29,7 @@ genes=$2
 rRNA=GRCh38.rRNA.interval_list
 
 # Sequence names and lengths. (Must be tab-delimited.)
-perl -lane 'print "\@SQ\tSN:$F[0]\tLN:$F[1]\tAS:GRCh38"' $chrom_sizes | \
-    grep -v _ \
+perl -lane 'print "\@SQ\tSN:$F[0]\tLN:$F[1]\tAS:GRCh38"' $chrom_sizes \
 > $rRNA
 
 # Intervals for rRNA transcripts.
