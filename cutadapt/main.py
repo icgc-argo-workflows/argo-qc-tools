@@ -84,16 +84,12 @@ def prep_qc_metrics(cutadapt_log, tool_ver):
         'metrics': {}
     }
 
-    # TO UPDATE
-    # with open(cutadapt_log,'r') as l:
-    #     log=l.read()
-    #     r1_adapt=re.search("Read 1 with adapter:\s+\d+.+(\d+\.\d+)%",log)
-    #     r2_adapt=re.search("Read 2 with adapter:\s+\d+.+(\d+\.\d+)%",log)
-    #     q_trim=re.search("Quality-trimmed:\s+\d+.+(\d+\.\d+)%",log)
-
-    # qc_metrics['metrics']['adapter_read1_percent']=float(r1_adapt.group(1))
-    # qc_metrics['metrics']['adapter_read2_percent']=float(r2_adapt.group(1))
-    # qc_metrics['metrics']['quality_trimmed_percent']=float(q_trim.group(1))
+    with open(cutadapt_log,'r') as l:
+        log=l.read()
+        adapt=re.search("Read 1 with adapter:\s+\d+.+(\d+\.\d+)%",log)
+        if adapt is None:
+            adapt=re.search("Reads with adapters:\s+\d+.+(\d+\.\d+)%",log)
+    qc_metrics['metrics']['adapter_percent']=float(adapt.group(1))
 
     qc_metrics_file = f"{os.path.dirname(cutadapt_log)}/{os.path.basename(cutadapt_log)}.qc_metrics.json"
     with open(qc_metrics_file, "w") as j:
@@ -141,11 +137,11 @@ def main():
         sys.exit('Error: specified output dir %s does not exist or is not accessible!' % args.output_dir)
 
     basename_R1=os.path.basename(args.input_R1)
-    
+
     if args.input_R2:
       basename_R2=os.path.basename(args.input_R2)
       cmd = f"cutadapt -q {args.min_trim_qual} -m {args.min_trim_len} -a {args.adapter_R1} -A {args.adapter_R2} -o {args.output_dir}/trim_{basename_R1} -p {args.output_dir}/trim_{basename_R2} {args.input_R1} {args.input_R2}"
-    else: 
+    else:
       cmd = f"cutadapt -q {args.min_trim_qual} -m {args.min_trim_len} -a {args.adapter_R1} -o {args.output_dir}/trim_{basename_R1} {args.input_R1}"
 
 

@@ -31,11 +31,10 @@ nextflow run main.nf -params-file params.json
 **Required**:
 
 * `input_R1`: Read1 fastq file. This is assumed to be in a gzipped form.
-* `input_R2`: Read2 fastq file. This is assumed to be in a gzipped form.
 * `publish_dir`: the final location for the results.
 
 **Optional**:
-
+* `input_R2`: Read2 fastq file. This is assumed to be in a gzipped form. Default: No_File, which forces cutadapt to run for single end
 * `read1_adapter` : Override the adapter for read 1. Default: "AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"
 * `read2_adapter` : Override the adapter for read 2. Default: "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"
 * `min_length` : set the minimum length permitted for reads. Default: 1
@@ -61,10 +60,7 @@ Examples of these files are located in [tests/expected](tests/expected).
 ### Metrics
 
 Current metrics captured in the qc_metrics file include:
-* `adapter_read1_percent `: the percent of read 1's that contained adapter sequence.
-* `adapter_read2_percent`: the percent of read 2's that contained adapter sequence.
-* `quality_trimmed_percent`: the percent of reads that were trimmed for quality.
-  By default, this should be 0, because by default, quality trimming is turned off.
+* `adapter_percent `: the percent of reads that contained adapter sequence.
 
 
 ## Local Testing
@@ -79,7 +75,7 @@ wfpm workon cutadapt
 3. Build the Docker container locally
 ```
 cd cutadapt
-docker build -t ghcr.io/icgc-argo-qc-wg/argo-qc-tools.cutadapt:3.4.0 .
+docker build -t ghcr.io/icgc-argo-qc-workflows/argo-qc-tools.cutadapt:0.2.1 .
 ```
 4. Run the tests
 ```
@@ -92,6 +88,7 @@ If everything works correctly, you should see something like the following:
 Validating package: /Users/mtaschuk/git/argo-qc-tools/cutadapt
 Pakcage valid.
 Testing package: /Users/mtaschuk/git/argo-qc-tools/cutadapt
-[1/1] Testing: /Users/mtaschuk/git/argo-qc-tools/cutadapt/tests/test-job-1.json. PASSED
-Tested package: cutadapt, PASSED: 1, FAILED: 0
+[1/2] Testing: /Users/mtaschuk/git/argo-qc-tools/cutadapt/tests/test-job-1.json. PASSED
+[2/2] Testing: /Users/mtaschuk/git/argo-qc-tools/cutadapt/tests/test-job-2.json. PASSED
+Tested package: cutadapt, PASSED: 2, FAILED: 0
 ```
