@@ -27,7 +27,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.1'  // package version
+version = '0.2.0'  // package version
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo-workflows/argo-qc-tools.cutadapt'
 ]
@@ -38,8 +38,11 @@ params.container_registry = ""
 params.container_version = ""
 params.container = ""
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
+params.read_group_id = ""
+params.input_R1=""
+params.input_R2="No_File"
 params.expected_output = ""
+
 include { cutadapt } from '../main'
 
 process file_smart_diff {
@@ -56,7 +59,7 @@ process file_smart_diff {
     tar xvf !{output_tgz} -C actual
     tar xvf !{expected_tgz} -C expected
 
-    export NAME=`basename !{output_tgz} .cutadapt.log.qc.tgz`
+    export NAME=`basename !{output_tgz} .cutadapt.tgz`
 
     diff actual/tar_content.json expected/tar_content.json \
       && ( echo "TAR_CONTENT: Test PASSED" && exit 0 ) || ( echo "TAR_CONTENT: Test FAILED. tar_content.json files do not match" && exit 1 )
@@ -74,20 +77,22 @@ process file_smart_diff {
 }
 workflow checker {
   take:
+    read_group_id
     input_R1
     input_R2
     expected_tgz
   main:
     cutadapt(
-      file(params.input_R1), file(params.input_R2)
+      tuple(read_group_id, input_R1, input_R2)
     )
     file_smart_diff(
-      cutadapt.out.output_tgz,
+      cutadapt.out.cutadapt_tar,
       expected_tgz
     )
 }
 workflow {
   checker(
+    params.read_group_id,
     file(params.input_R1),
     file(params.input_R2),
     file(params.expected_tgz)

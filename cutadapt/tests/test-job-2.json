@@ -1,8 +1,7 @@
 {
     "read_group_id": "TEST-RNA",
     "input_R1": "input/TCRBOA7-T-RNA.250reads.read1.fastq.gz",
-    "input_R2": "input/TCRBOA7-T-RNA.250reads.read2.fastq.gz",
-    "expected_tgz": "expected/expected.test-job-1.cutadapt.tgz",
+    "expected_tgz": "expected/expected.test-job-2.cutadapt.tgz",
     "publish_dir": "outdir",
     "cpus": 1,
     "mem": 0.5

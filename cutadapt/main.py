@@ -33,6 +33,7 @@ import subprocess
 import re
 import json
 import tarfile
+import hashlib
 
 def run_cmd(cmd):
     proc = subprocess.Popen(
@@ -61,7 +62,7 @@ def prepare_tarball(qc_metrics, logfile):
 
     files_to_tar = ['tar_content.json', qc_metrics, logfile]
 
-    tarfile_name = f"{os.path.dirname(logfile)}/{os.path.basename(logfile)}.qc.tgz"
+    tarfile_name = re.sub(r'.log$', r'.tgz', logfile)
     with tarfile.open(tarfile_name, "w:gz") as tar:
         for f in files_to_tar:
             tar.add(f, arcname=os.path.basename(f))
@@ -82,15 +83,13 @@ def prep_qc_metrics(cutadapt_log, tool_ver):
         },
         'metrics': {}
     }
+
     with open(cutadapt_log,'r') as l:
         log=l.read()
-        r1_adapt=re.search("Read 1 with adapter:\s+\d+.+(\d+\.\d+)%",log)
-        r2_adapt=re.search("Read 2 with adapter:\s+\d+.+(\d+\.\d+)%",log)
-        q_trim=re.search("Quality-trimmed:\s+\d+.+(\d+\.\d+)%",log)
-
-    qc_metrics['metrics']['adapter_read1_percent']=float(r1_adapt.group(1))
-    qc_metrics['metrics']['adapter_read2_percent']=float(r2_adapt.group(1))
-    qc_metrics['metrics']['quality_trimmed_percent']=float(q_trim.group(1))
+        adapt=re.search("Read 1 with adapter:\s+\d+.+(\d+\.\d+)%",log)
+        if adapt is None:
+            adapt=re.search("Reads with adapters:\s+\d+.+(\d+\.\d+)%",log)
+    qc_metrics['metrics']['adapter_percent']=float(adapt.group(1))
 
     qc_metrics_file = f"{os.path.dirname(cutadapt_log)}/{os.path.basename(cutadapt_log)}.qc_metrics.json"
     with open(qc_metrics_file, "w") as j:
@@ -110,7 +109,9 @@ def main():
     parser.add_argument('-1', '--input-R1', dest='input_R1', type=str,
                         help='Input file read 1', required=True)
     parser.add_argument('-2', '--input-R2', dest='input_R2', type=str,
-                        help='Input file read 2', required=True)
+                        help='Input file read 2')
+    parser.add_argument('-r', '--rg_id', dest='rg_id', type=str,
+                        help='Read group ID', required=True)
     parser.add_argument('-o', '--output-dir', dest='output_dir', type=str,
                         help='Output directory', required=True)
     parser.add_argument('-a', '--read1-adapter', dest='adapter_R1', type=str,
@@ -130,18 +131,27 @@ def main():
 
     if not os.path.isfile(args.input_R1):
         sys.exit('Error: specified input file %s does not exist or is not accessible!' % args.input_R1)
-    if not os.path.isfile(args.input_R2):
+    if args.input_R2 and not os.path.isfile(args.input_R2):
         sys.exit('Error: specified input file %s does not exist or is not accessible!' % args.input_R2)
     if not os.path.isdir(args.output_dir):
         sys.exit('Error: specified output dir %s does not exist or is not accessible!' % args.output_dir)
 
-    basename=os.path.basename(args.input_R1)
-    index_of_dot=basename.index('.')
-    base=basename[:index_of_dot]
+    basename_R1=os.path.basename(args.input_R1)
 
-    stdout, stderr, returncode = run_cmd(f"cutadapt -q {args.min_trim_qual} -m {args.min_trim_len} -a {args.adapter_R1} -A {args.adapter_R2} -o {args.output_dir}/out.fastq.gz -p {args.output_dir}/out2.fastq.gz {args.input_R1} {args.input_R2}")
+    if args.input_R2:
+      basename_R2=os.path.basename(args.input_R2)
+      cmd = f"cutadapt -q {args.min_trim_qual} -m {args.min_trim_len} -a {args.adapter_R1} -A {args.adapter_R2} -o {args.output_dir}/trim_{basename_R1} -p {args.output_dir}/trim_{basename_R2} {args.input_R1} {args.input_R2}"
+    else:
+      cmd = f"cutadapt -q {args.min_trim_qual} -m {args.min_trim_len} -a {args.adapter_R1} -o {args.output_dir}/trim_{basename_R1} {args.input_R1}"
 
-    logfile=f"{args.output_dir}/{base}.cutadapt.log"
+
+    stdout, stderr, returncode = run_cmd(cmd)
+    # in case the rg_id contains filename not friendly characters
+    friendly_rgid = "".join([ c if re.match(r"[a-zA-Z0-9\.\-_]", c) else "_" for c in args.rg_id ])
+    # calculate md5 and add it in the logfile name to avoid name colision
+    md5sum = hashlib.md5((args.rg_id).encode('utf-8')).hexdigest()
+
+    logfile=f"{args.output_dir}/{friendly_rgid}.{md5sum}.cutadapt.log"
     with open(logfile,"w") as log:
         log.write(stdout)
 
